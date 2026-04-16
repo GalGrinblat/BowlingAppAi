@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { NavButton } from '../nav/NavButton';
+import { BackButton } from '../BackButton';
 import { GameTeamPanel } from './GameTeamPanel';
 import { sortPlayersByAverage, applyLineupRule } from '../../../utils/lineupUtils';
 import type { Game, GamePlayer } from '../../../types/index';
@@ -68,7 +68,7 @@ export const PreMatchSetup: React.FC<PreMatchSetupProps> = ({
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
-          <NavButton direction="back" label={t('common.back')} onClick={onBack} className="text-blue-400 hover:text-blue-300 mb-4 flex items-center gap-2" />
+          <BackButton label={t('common.back')} onClick={onBack} className="text-blue-400 hover:text-blue-300 mb-4" />
           <h1 className="text-3xl font-bold mb-2">{t('games.preGameSetup')}</h1>
           <p className="text-gray-400">
             {t('common.round')} {game.round}, {t('common.matchDay')} {game.matchDay}

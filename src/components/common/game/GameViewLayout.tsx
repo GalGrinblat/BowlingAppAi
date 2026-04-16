@@ -3,7 +3,7 @@ import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { calcGamePoints } from '../../../utils/matchUtils';
 import { GameScoreTable } from '../GameScoreTable';
-import { NavButton } from '../nav/NavButton';
+import { BackButton } from '../BackButton';
 import type { Game } from '../../../types/index';
 
 interface GameViewLayoutProps {
@@ -28,7 +28,7 @@ export const GameViewLayout: React.FC<GameViewLayoutProps> = ({ game, onBack }) 
               {game.completedAt && ` • ${t('playerDashboard.completedOn')} ${formatDate(game.completedAt)}`}
             </p>
           </div>
-          <NavButton direction="back" label={t('common.back')} onClick={onBack} className="shrink-0 text-gray-600 hover:text-gray-800" />
+          <BackButton label={t('common.back')} onClick={onBack} className="shrink-0" />
         </div>
       </div>
 

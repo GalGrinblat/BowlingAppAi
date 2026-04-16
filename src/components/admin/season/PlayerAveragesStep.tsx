@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { NavButton } from '../../common/nav/NavButton';
+import { BackButton } from '../../common/BackButton';
 import { getPlayerDisplayName } from '../../../utils/playerUtils';
 import type { CurrentPlayerAverages, League, Player } from '../../../types/index';
 
@@ -51,7 +51,7 @@ export const PlayerAveragesStep: React.FC<PlayerAveragesStepProps> = ({
             <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('seasons.createSeason')}</h1>
             <p className="text-gray-600">{league.name}</p>
           </div>
-          <NavButton direction="back" label={t('common.backToLeague')} onClick={onCancel} />
+          <BackButton label={t('common.backToLeague')} onClick={onCancel} />
         </div>
       </div>
       <div className="bg-white rounded-xl shadow-lg p-6">
@@ -94,7 +94,7 @@ export const PlayerAveragesStep: React.FC<PlayerAveragesStepProps> = ({
           </table>
         </div>
         <div className="flex gap-3 mt-6">
-          <NavButton type="button" direction="back" label={t('common.back')} onClick={onBack} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold" />
+          <BackButton type="button" label={t('common.back')} onClick={onBack} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold" />
           <button type="button" onClick={onSubmit} className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">{t('seasons.createSeason')}</button>
           <button type="button" onClick={onCancel} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold">{t('common.cancel')}</button>
         </div>

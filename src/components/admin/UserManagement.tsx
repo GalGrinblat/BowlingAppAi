@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { usersApi, playersApi, allowedEmailsApi, type DatabaseUser, type AllowedEmail } from '../../services/api';
 import type { Player } from '../../types/index';
 import { useTranslation } from '../../contexts/LanguageContext';
-import { NavButton } from '../common/nav/NavButton';
+import { BackButton } from '../common/BackButton';
 import { useDateFormat } from '../../hooks/useDateFormat';
 import { logger } from '../../utils/logger';
 import { getPlayerDisplayName } from '../../utils/playerUtils';
@@ -144,7 +144,7 @@ export const UserManagement: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('userManagement.title')}</h1>
             <p className="text-gray-600">{t('userManagement.subtitle')}</p>
           </div>
-          <NavButton direction="back" label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
+          <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
         </div>
       </div>
 

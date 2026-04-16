@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { organizationApi, utilApi } from '../../services/api';
 import { useTranslation } from '../../contexts/LanguageContext';
-import { NavButton } from '../common/nav/NavButton';
+import { BackButton } from '../common/BackButton';
 import { useDateFormat } from '../../hooks/useDateFormat';
 import { useAdminData } from '../../contexts/AdminDataContext';
 
@@ -62,7 +62,7 @@ export const Settings: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('settings.title')}</h1>
             <p className="text-gray-600">{t('settings.organizationSettings')}</p>
           </div>
-          <NavButton direction="back" label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
+          <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
         </div>
       </div>
 

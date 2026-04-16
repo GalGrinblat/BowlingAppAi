@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { leaguesApi, seasonsApi } from '../../../services/api';
 import { createLeague, validateLeague } from '../../../models';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { NavButton } from '../../common/nav/NavButton';
+import { BackButton } from '../../common/BackButton';
 import { DEFAULT_HANDICAP_BASIS, DEFAULT_HANDICAP_PERCENTAGE, DEFAULT_NUMBER_OF_TEAMS, DEFAULT_NUMBER_OF_ROUNDS, DEFAULT_PLAYERS_PER_TEAM, DEFAULT_MATCHES_PER_GAME, DEFAULT_PLAYER_MATCH_POINTS, DEFAULT_TEAM_MATCH_POINTS, DEFAULT_TEAM_GAME_POINTS, DEFAULT_USE_HANDICAP, DEFAULT_LINEUP_STRATEGY, DEFAULT_LINEUP_RULE } from '../../../constants/bowling';
 import { HandicapConfigurationForm } from '../config/HandicapConfigurationForm';
 import { PlayerMatchupConfiguration } from '../config/PlayerMatchupConfiguration';
@@ -222,7 +222,7 @@ export const LeagueManagement: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('leagues.title')}</h1>
             <p className="text-gray-600">{t('leagues.totalLeagues').replace('{{count}}', String(leagues.length))}</p>
           </div>
-          <NavButton direction="back" label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
+          <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
         </div>
       </div>
 
