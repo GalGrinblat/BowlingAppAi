@@ -15,9 +15,7 @@ type BackButtonProps = {
 export const BackButton: React.FC<BackButtonProps> = ({ label, className = '', type = 'button', onClick, to }) => {
   const { isRTL } = useTranslation();
   const Icon = isRTL ? ArrowRight : ArrowLeft;
-  const content = isRTL
-    ? <><span>{label}</span><Icon size={16} /></>
-    : <><Icon size={16} /><span>{label}</span></>;
+  const content = <><Icon size={16} /><span>{label}</span></>;
   const cls = `flex items-center gap-1.5 text-gray-600 hover:text-gray-800 ${className}`.trim();
 
   if (to !== undefined) return <Link to={to} className={cls}>{content}</Link>;
