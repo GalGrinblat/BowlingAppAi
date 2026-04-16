@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { organizationApi, utilApi } from '../../services/api';
 import { useTranslation } from '../../contexts/LanguageContext';
-import { BackButton } from '../common/BackButton';
+import { FormField } from '../common/FormField';
+import { PageHeader } from '../common/PageHeader';
 import { useDateFormat } from '../../hooks/useDateFormat';
 import { useAdminData } from '../../contexts/AdminDataContext';
 
@@ -56,15 +57,11 @@ export const Settings: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('settings.title')}</h1>
-            <p className="text-gray-600">{t('settings.organizationSettings')}</p>
-          </div>
-          <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
-        </div>
-      </div>
+      <PageHeader
+        title={t('settings.title')}
+        subtitle={t('settings.organizationSettings')}
+        back={{ label: t('common.backToDashboard'), onClick: () => navigate('/admin') }}
+      />
 
       {/* Organization Info */}
       <div className="bg-white rounded-xl shadow-lg p-6">
@@ -82,34 +79,15 @@ export const Settings: React.FC = () => {
 
         {isEditing ? (
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('settings.organizationName')}
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={t('settings.organizationName')}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('settings.language')}
-              </label>
-              <select
-                value={formData.language}
-                onChange={(e) => setFormData({ ...formData, language: e.target.value as 'en' | 'he' })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
+            <FormField label={t('settings.organizationName')}>
+              <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t('settings.organizationName')} />
+            </FormField>
+            <FormField label={t('settings.language')} helperText={formData.language === 'he' ? 'השפה תשתנה לעברית' : 'Language will change to English'}>
+              <select value={formData.language} onChange={(e) => setFormData({ ...formData, language: e.target.value as 'en' | 'he' })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="en">{t('settings.english')}</option>
                 <option value="he">{t('settings.hebrew')}</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
-                {formData.language === 'he' ? 'השפה תשתנה לעברית' : 'Language will change to English'}
-              </p>
-            </div>
+            </FormField>
             <div className="flex gap-3">
               <button
                 onClick={handleSave}

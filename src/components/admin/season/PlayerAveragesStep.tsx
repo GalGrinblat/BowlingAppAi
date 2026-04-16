@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { BackButton } from '../../common/BackButton';
+import { PageHeader } from '../../common/PageHeader';
 import { getPlayerDisplayName } from '../../../utils/playerUtils';
 import type { CurrentPlayerAverages, League, Player } from '../../../types/index';
 
@@ -45,15 +46,11 @@ export const PlayerAveragesStep: React.FC<PlayerAveragesStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('seasons.createSeason')}</h1>
-            <p className="text-gray-600">{league.name}</p>
-          </div>
-          <BackButton label={t('common.backToLeague')} onClick={onCancel} />
-        </div>
-      </div>
+      <PageHeader
+        title={t('seasons.createSeason')}
+        subtitle={league.name}
+        back={{ label: t('common.backToLeague'), onClick: onCancel }}
+      />
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('seasons.reviewPlayerAverages')}</h2>
         <p className="text-gray-600 mb-6">{t('seasons.reviewPlayerAveragesDesc')}</p>

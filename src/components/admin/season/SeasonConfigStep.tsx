@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { BackButton } from '../../common/BackButton';
+import { FormField } from '../../common/FormField';
+import { PageHeader } from '../../common/PageHeader';
 import { HandicapConfigurationForm } from '../config/HandicapConfigurationForm';
 import { PointsConfiguration } from '../config/PointsConfiguration';
 import { GeneralConfiguration } from '../config/GeneralConfiguration';
@@ -80,15 +81,11 @@ export const SeasonConfigStep: React.FC<SeasonConfigStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('seasons.createSeason')}</h1>
-            <p className="text-gray-600">{league.name}</p>
-          </div>
-          <BackButton label={t('common.backToLeague')} onClick={onBack} />
-        </div>
-      </div>
+      <PageHeader
+        title={t('seasons.createSeason')}
+        subtitle={league.name}
+        back={{ label: t('common.backToLeague'), onClick: onBack }}
+      />
       <div className="bg-white rounded-xl shadow-lg p-6">
         <form onSubmit={e => {
           e.preventDefault();
@@ -100,14 +97,12 @@ export const SeasonConfigStep: React.FC<SeasonConfigStepProps> = ({
         }} className="space-y-4">
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('seasons.seasonName')} *</label>
+            <FormField label={t('seasons.seasonName')} required className="md:col-span-2">
               <input type="text" value={formData.name} onChange={e => update({ name: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="e.g., Spring 2026, Fall Season" required />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('leagues.description')}</label>
+            </FormField>
+            <FormField label={t('leagues.description')} className="md:col-span-2">
               <textarea value={formData.description || ''} onChange={e => update({ description: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t('leagues.briefDescription')} rows={2} />
-            </div>
+            </FormField>
             <div className="md:col-span-2 flex items-center mb-4">
               <input
                 type="checkbox"

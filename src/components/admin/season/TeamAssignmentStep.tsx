@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { BackButton } from '../../common/BackButton';
+import { PageHeader } from '../../common/PageHeader';
 import { getPlayerDisplayName } from '../../../utils/playerUtils';
 import type { Player } from '../../../types/index';
 
@@ -36,15 +36,11 @@ export const TeamAssignmentStep: React.FC<TeamAssignmentStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('seasons.assignPlayers')}</h1>
-            <p className="text-gray-600">{t('seasons.assignPlayersDesc').replace('{{count}}', String(playersPerTeam))}</p>
-          </div>
-          <BackButton label={t('common.back')} onClick={onBack} />
-        </div>
-      </div>
+      <PageHeader
+        title={t('seasons.assignPlayers')}
+        subtitle={t('seasons.assignPlayersDesc').replace('{{count}}', String(playersPerTeam))}
+        back={{ label: t('common.back'), onClick: onBack }}
+      />
       <div className="bg-white rounded-xl shadow-lg p-6">
         <form onSubmit={e => {
           e.preventDefault();

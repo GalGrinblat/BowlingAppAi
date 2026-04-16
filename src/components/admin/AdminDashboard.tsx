@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../contexts/LanguageContext';
 import { useDateFormat } from '../../hooks/useDateFormat';
 import { useAdminData } from '../../contexts/AdminDataContext';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { EmptyState } from '../common/EmptyState';
+import { PageHeader } from '../common/PageHeader';
 
 import type { ScheduleMatchDay } from '../../types/index';
 
@@ -35,12 +38,9 @@ export const AdminDashboard: React.FC = () => {
   if (isLoadingData) {
     return (
       <div className="space-y-6">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('dashboard.adminTitle')}</h1>
-          <p className="text-gray-600">{org?.name || t('dashboard.defaultOrgName')}</p>
-        </div>
+        <PageHeader title={t('dashboard.adminTitle')} subtitle={org?.name || t('dashboard.defaultOrgName')} />
         <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <p className="text-gray-600 text-lg">{t('dashboard.loadingDashboard')}</p>
         </div>
       </div>
@@ -50,10 +50,7 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('dashboard.adminTitle')}</h1>
-        <p className="text-gray-600">{org?.name || t('dashboard.defaultOrgName')}</p>
-      </div>
+      <PageHeader title={t('dashboard.adminTitle')} subtitle={org?.name || t('dashboard.defaultOrgName')} />
 
       {/* Pending Users Alert */}
       {!isLoadingUsers && pendingUsers.length > 0 && (
@@ -151,15 +148,10 @@ export const AdminDashboard: React.FC = () => {
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('common.activeLeagues')}</h2>
         {activeLeagues.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>{t('dashboard.noActiveLeagues')}</p>
-            <button
-              onClick={() => navigate('/admin/leagues')}
-              className="mt-4 text-blue-600 hover:text-blue-700 font-semibold"
-            >
-              {t('dashboard.createFirstLeague')}
-            </button>
-          </div>
+          <EmptyState
+            message={t('dashboard.noActiveLeagues')}
+            action={{ label: t('dashboard.createFirstLeague'), onClick: () => navigate('/admin/leagues') }}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {activeLeagues.map(league => {

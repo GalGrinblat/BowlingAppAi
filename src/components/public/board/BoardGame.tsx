@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { boardApi } from '../../../services/api/boardApi';
 import { GameViewLayout } from '../../common/game/GameViewLayout';
+import { LoadingSpinner } from '../../common/LoadingSpinner';
 import type { Game } from '../../../types/index';
 
 export const BoardGame: React.FC = () => {
@@ -21,7 +22,7 @@ export const BoardGame: React.FC = () => {
   if (!game) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        <LoadingSpinner />
       </div>
     );
   }

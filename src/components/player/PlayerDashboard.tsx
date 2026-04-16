@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { playersApi } from '../../services/api/players';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { EmptyState } from '../common/EmptyState';
 import { leaguesApi } from '../../services/api/leagues';
 import { seasonsApi } from '../../services/api/seasons';
 import { teamsApi } from '../../services/api/teams';
@@ -383,7 +385,7 @@ export const PlayerDashboard: React.FC = () => {
 
   if (authIsLoading) return (
     <div className="flex items-center justify-center min-h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600"></div>
+      <LoadingSpinner color="purple" />
     </div>
   );
 
@@ -410,7 +412,7 @@ export const PlayerDashboard: React.FC = () => {
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600"></div>
+      <LoadingSpinner color="purple" />
     </div>
   );
   if (loadError) return <div className="text-red-600 p-6">{loadError}</div>;
@@ -730,13 +732,12 @@ export const PlayerDashboard: React.FC = () => {
 
           {/* No Completed Games Message */}
           {recentCompletedGames.length === 0 && playerLeagues.length > 0 && (
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-lg p-8 text-center">
-              <p className="text-4xl mb-3">🎳</p>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('playerDashboard.noGamesCompletedYet')}</h3>
-              <p className="text-gray-600">
-                {t('playerDashboard.noGamesCompletedDesc')}
-              </p>
-            </div>
+            <EmptyState
+              icon="🎳"
+              title={t('playerDashboard.noGamesCompletedYet')}
+              message={t('playerDashboard.noGamesCompletedDesc')}
+              className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-lg p-8 text-center"
+            />
           )}
         </>
       )}

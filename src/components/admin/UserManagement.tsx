@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { usersApi, playersApi, allowedEmailsApi, type DatabaseUser, type AllowedEmail } from '../../services/api';
 import type { Player } from '../../types/index';
 import { useTranslation } from '../../contexts/LanguageContext';
-import { BackButton } from '../common/BackButton';
+import { FormField } from '../common/FormField';
+import { PageHeader } from '../common/PageHeader';
 import { useDateFormat } from '../../hooks/useDateFormat';
 import { logger } from '../../utils/logger';
 import { getPlayerDisplayName } from '../../utils/playerUtils';
@@ -130,7 +131,7 @@ export const UserManagement: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -138,15 +139,11 @@ export const UserManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('userManagement.title')}</h1>
-            <p className="text-gray-600">{t('userManagement.subtitle')}</p>
-          </div>
-          <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
-        </div>
-      </div>
+      <PageHeader
+        title={t('userManagement.title')}
+        subtitle={t('userManagement.subtitle')}
+        back={{ label: t('common.backToDashboard'), onClick: () => navigate('/admin') }}
+      />
 
       {/* Info Card */}
       <div className="bg-blue-50 rounded-xl p-6">
@@ -175,30 +172,12 @@ export const UserManagement: React.FC = () => {
         <div className="p-6 bg-gray-50 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('userManagement.addEmailTitle')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('userManagement.emailAddressLabel')}
-              </label>
-              <input
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder={t('userManagement.emailAddressPlaceholder')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('userManagement.notesLabel')}
-              </label>
-              <input
-                type="text"
-                value={newEmailNotes}
-                onChange={(e) => setNewEmailNotes(e.target.value)}
-                placeholder={t('userManagement.notesPlaceholder')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+            <FormField label={t('userManagement.emailAddressLabel')}>
+              <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder={t('userManagement.emailAddressPlaceholder')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            </FormField>
+            <FormField label={t('userManagement.notesLabel')}>
+              <input type="text" value={newEmailNotes} onChange={(e) => setNewEmailNotes(e.target.value)} placeholder={t('userManagement.notesPlaceholder')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            </FormField>
           </div>
           <button
             onClick={handleAddEmail}
@@ -270,41 +249,22 @@ export const UserManagement: React.FC = () => {
                       <p className="text-gray-900">{user.email}</p>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        {t('userManagement.roleLabel')}
-                      </label>
-                      <select
-                        value={selectedRole}
-                        onChange={(e) => setSelectedRole(e.target.value as 'admin' | 'player')}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
+                    <FormField label={t('userManagement.roleLabel')}>
+                      <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value as 'admin' | 'player')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="player">{t('userManagement.rolePlayer')}</option>
                         <option value="admin">{t('userManagement.roleAdmin')}</option>
                       </select>
-                    </div>
+                    </FormField>
 
                     {selectedRole === 'player' && (
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          {t('userManagement.linkPlayerLabel')}
-                        </label>
-                        <select
-                          value={selectedPlayer}
-                          onChange={(e) => setSelectedPlayer(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
+                      <FormField label={t('userManagement.linkPlayerLabel')} helperText={t('userManagement.linkPlayerHelp')}>
+                        <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                           <option value="">{t('userManagement.notLinked')}</option>
                           {players.map((player) => (
-                            <option key={player.id} value={player.id}>
-                              {getPlayerDisplayName(player)}
-                            </option>
+                            <option key={player.id} value={player.id}>{getPlayerDisplayName(player)}</option>
                           ))}
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {t('userManagement.linkPlayerHelp')}
-                        </p>
-                      </div>
+                      </FormField>
                     )}
 
                     <div className="flex gap-3 pt-2">

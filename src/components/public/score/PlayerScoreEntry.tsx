@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { gamesApi } from '../../../services/api';
+import { LoadingSpinner } from '../../common/LoadingSpinner';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getPlayerDisplayName } from '../../../utils/playerUtils';
@@ -360,7 +361,7 @@ export const PlayerScoreEntry: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-500" />
+        <LoadingSpinner />
       </div>
     );
   }

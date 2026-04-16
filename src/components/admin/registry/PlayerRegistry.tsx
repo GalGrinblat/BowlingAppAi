@@ -3,7 +3,9 @@ import { playersApi, teamsApi, seasonsApi } from '../../../services/api';
 import { createPlayer, validatePlayer } from '../../../models';
 import { Pagination, usePagination } from '../../common/Pagination';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { BackButton } from '../../common/BackButton';
+import { EmptyState } from '../../common/EmptyState';
+import { ActionButton } from '../../common/ActionButton';
+import { PageHeader } from '../../common/PageHeader';
 import {
   exportToCSV,
   exportToJSON,
@@ -239,17 +241,13 @@ export const PlayerRegistry: React.FC = () => {
   if (isLoadingPlayers) {
     return (
       <div className="space-y-6">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('players.title')}</h1>
-              <p className="text-gray-600">Loading players...</p>
-            </div>
-            <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
-          </div>
-        </div>
+        <PageHeader
+          title={t('players.title')}
+          subtitle="Loading players..."
+          back={{ label: t('common.backToDashboard'), onClick: () => navigate('/admin') }}
+        />
         <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Loading players data...</p>
         </div>
       </div>
@@ -259,17 +257,11 @@ export const PlayerRegistry: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('players.title')}</h1>
-            <p className="text-gray-600">{t('players.totalPlayers').replace('{{count}}', String(players.length))}</p>
-          </div>
-          <button onClick={() => navigate('/admin')} className="text-gray-600 hover:text-gray-800">
-            {t('common.leftArrow')} {t('common.backToDashboard')}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title={t('players.title')}
+        subtitle={t('players.totalPlayers').replace('{{count}}', String(players.length))}
+        back={{ label: t('common.backToDashboard'), onClick: () => navigate('/admin') }}
+      />
 
       {/* Add/Edit Form or Search/Sort/Import Controls */}
       {isAdding ? (
@@ -363,7 +355,7 @@ export const PlayerRegistry: React.FC = () => {
           </h2>
         </div>
         {activePlayers.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">{t('players.noActivePlayers')}</p>
+          <EmptyState message={t('players.noActivePlayers')} />
         ) : (
           <div className="p-6 space-y-2">
             {paginatedActivePlayers.map((player: Player) =>
@@ -384,12 +376,8 @@ export const PlayerRegistry: React.FC = () => {
                       <h3 className="font-semibold text-gray-800">{getPlayerDisplayName(player)}</h3>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleEdit(player)} className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                        {t('common.edit')}
-                      </button>
-                      <button onClick={() => handleDelete(player.id)} className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200">
-                        {t('common.delete')}
-                      </button>
+                      <ActionButton variant="edit" label={t('common.edit')} onClick={() => handleEdit(player)} />
+                      <ActionButton variant="delete" label={t('common.delete')} onClick={() => handleDelete(player.id)} />
                     </div>
                   </div>
                 </div>
@@ -432,9 +420,7 @@ export const PlayerRegistry: React.FC = () => {
                       <h3 className="font-semibold text-gray-600">{getPlayerDisplayName(player)}</h3>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleEdit(player)} className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                        {t('common.edit')}
-                      </button>
+                      <ActionButton variant="edit" label={t('common.edit')} onClick={() => handleEdit(player)} />
                     </div>
                   </div>
                 </div>

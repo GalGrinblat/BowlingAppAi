@@ -5,6 +5,7 @@ import ScoreLayout from '../components/public/score/ScoreLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminDataProvider } from '../contexts/AdminDataContext';
 import { Header } from '../components/common/Header';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { LoginView } from '../components/common/LoginView';
 import { BoardHeader } from '../components/public/board/BoardHeader';
 
@@ -32,7 +33,7 @@ const BoardLayout = () => (
       <BoardHeader />
       <Suspense fallback={
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+          <LoadingSpinner />
         </div>
       }>
         <Outlet />
@@ -48,7 +49,7 @@ const RootLayout = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Loading...</p>
         </div>
       </div>
@@ -61,7 +62,7 @@ const RootLayout = () => {
         <Header currentUser={currentUser} onLogout={logout} />
         <Suspense fallback={
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+            <LoadingSpinner />
           </div>
         }>
           <Outlet />

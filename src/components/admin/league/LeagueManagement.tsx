@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { leaguesApi, seasonsApi } from '../../../services/api';
 import { createLeague, validateLeague } from '../../../models';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { BackButton } from '../../common/BackButton';
+import { ActionButton } from '../../common/ActionButton';
+import { FormField } from '../../common/FormField';
+import { PageHeader } from '../../common/PageHeader';
 import { DEFAULT_HANDICAP_BASIS, DEFAULT_HANDICAP_PERCENTAGE, DEFAULT_NUMBER_OF_TEAMS, DEFAULT_NUMBER_OF_ROUNDS, DEFAULT_PLAYERS_PER_TEAM, DEFAULT_MATCHES_PER_GAME, DEFAULT_PLAYER_MATCH_POINTS, DEFAULT_TEAM_MATCH_POINTS, DEFAULT_TEAM_GAME_POINTS, DEFAULT_USE_HANDICAP, DEFAULT_LINEUP_STRATEGY, DEFAULT_LINEUP_RULE } from '../../../constants/bowling';
 import { HandicapConfigurationForm } from '../config/HandicapConfigurationForm';
 import { PlayerMatchupConfiguration } from '../config/PlayerMatchupConfiguration';
@@ -216,15 +218,11 @@ export const LeagueManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('leagues.title')}</h1>
-            <p className="text-gray-600">{t('leagues.totalLeagues').replace('{{count}}', String(leagues.length))}</p>
-          </div>
-          <BackButton label={t('common.backToDashboard')} onClick={() => navigate('/admin')} />
-        </div>
-      </div>
+      <PageHeader
+        title={t('leagues.title')}
+        subtitle={t('leagues.totalLeagues').replace('{{count}}', String(leagues.length))}
+        back={{ label: t('common.backToDashboard'), onClick: () => navigate('/admin') }}
+      />
 
       {/* Add/Edit Form */}
       {isAdding ? (
@@ -236,31 +234,12 @@ export const LeagueManagement: React.FC = () => {
 
             {/* Title & Description */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('leagues.leagueName')} *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={t('leagues.exampleName')}
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('leagues.description')}
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={t('leagues.briefDescription')}
-                  rows={3}
-                />
-              </div>
+              <FormField label={t('leagues.leagueName')} required className="md:col-span-2">
+                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t('leagues.exampleName')} required />
+              </FormField>
+              <FormField label={t('leagues.description')} className="md:col-span-2">
+                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t('leagues.briefDescription')} rows={3} />
+              </FormField>
             </div>
 
             {/* General Configurations */}
@@ -389,32 +368,11 @@ export const LeagueManagement: React.FC = () => {
                       )}
                     </div>
                     <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => navigate(`/admin/leagues/${league.id}`)}
-                        className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
-                      >
-                        {t('common.view')}
-                      </button>
-                      <button
-                        onClick={() => handleEdit(league)}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                      >
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        onClick={() => toggleActive(league)}
-                        className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200"
-                        title={t('leagues.archiveLeague')}
-                      >
-                        📦 {t('leagues.archiveLeague')}
-                      </button>
+                      <ActionButton variant="view" label={t('common.view')} onClick={() => navigate(`/admin/leagues/${league.id}`)} />
+                      <ActionButton variant="edit" label={t('common.edit')} onClick={() => handleEdit(league)} />
+                      <ActionButton variant="archive" label={t('leagues.archiveLeague')} onClick={() => toggleActive(league)} icon="📦" title={t('leagues.archiveLeague')} />
                       {seasons.length === 0 && (
-                        <button
-                          onClick={() => handleDelete(league.id)}
-                          className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
-                        >
-                          {t('common.delete')}
-                        </button>
+                        <ActionButton variant="delete" label={t('common.delete')} onClick={() => handleDelete(league.id)} />
                       )}
                     </div>
                   </div>
@@ -454,19 +412,8 @@ export const LeagueManagement: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => navigate(`/admin/leagues/${league.id}`)}
-                        className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
-                      >
-                        {t('common.view')}
-                      </button>
-                      <button
-                        onClick={() => toggleActive(league)}
-                        className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200"
-                        title={t('leagues.restoreLeague')}
-                      >
-                        📤 {t('leagues.restoreLeague')}
-                      </button>
+                      <ActionButton variant="view" label={t('common.view')} onClick={() => navigate(`/admin/leagues/${league.id}`)} />
+                      <ActionButton variant="restore" label={t('leagues.restoreLeague')} onClick={() => toggleActive(league)} icon="📤" title={t('leagues.restoreLeague')} />
                     </div>
                   </div>
                 </div>

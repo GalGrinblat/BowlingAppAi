@@ -3,7 +3,7 @@ import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { calcGamePoints } from '../../../utils/matchUtils';
 import { GameScoreTable } from '../GameScoreTable';
-import { BackButton } from '../BackButton';
+import { PageHeader } from '../PageHeader';
 import type { Game } from '../../../types/index';
 
 interface GameViewLayoutProps {
@@ -19,18 +19,14 @@ export const GameViewLayout: React.FC<GameViewLayoutProps> = ({ game, onBack }) 
   return (
     <div className="space-y-6" dir={direction}>
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{t('gameHistory.title')}</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {t('common.round')} {game.round} • {t('common.matchDay')} {game.matchDay}
-              {game.completedAt && ` • ${t('playerDashboard.completedOn')} ${formatDate(game.completedAt)}`}
-            </p>
-          </div>
-          <BackButton label={t('common.back')} onClick={onBack} className="shrink-0" />
-        </div>
-      </div>
+      <PageHeader
+        title={t('gameHistory.title')}
+        subtitle={<>
+          {t('common.round')} {game.round} • {t('common.matchDay')} {game.matchDay}
+          {game.completedAt && ` • ${t('playerDashboard.completedOn')} ${formatDate(game.completedAt)}`}
+        </>}
+        back={{ label: t('common.back'), onClick: onBack }}
+      />
 
       {/* Winner Banner */}
       {winner !== 'tie' && (

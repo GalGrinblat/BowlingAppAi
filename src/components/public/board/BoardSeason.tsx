@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { boardApi } from '../../../services/api/boardApi';
+import { LoadingSpinner } from '../../common/LoadingSpinner';
 import { useSeasonStandings } from '../../../hooks/useSeasonStandings';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
@@ -88,7 +89,7 @@ export const BoardSeason: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        <LoadingSpinner />
       </div>
     );
   }

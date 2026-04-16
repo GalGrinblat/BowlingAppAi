@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { boardApi } from '../../../services/api/boardApi';
+import { LoadingSpinner } from '../../common/LoadingSpinner';
+import { EmptyState } from '../../common/EmptyState';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { useNavLabel } from '../../../hooks/useNavLabel';
@@ -78,7 +80,7 @@ export const BoardHome: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -93,9 +95,7 @@ export const BoardHome: React.FC = () => {
 
       {/* League Cards */}
       {leagues.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500">
-          {t('board.noActiveLeagues')}
-        </div>
+        <EmptyState message={t('board.noActiveLeagues')} className="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500" />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {leagues.map(league => {

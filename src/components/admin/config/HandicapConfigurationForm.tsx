@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
+import { FormField } from '../../common/FormField';
 import { MAX_BOWLING_SCORE } from '../../../constants/bowling';
 
 interface HandicapConfigurationFormProps {
@@ -54,40 +55,12 @@ export const HandicapConfigurationForm: React.FC<HandicapConfigurationFormProps>
 						{t('leagues.handicap.enableDisable')}
 					</p>
 				</div>
-				<div>
-					<label className="block text-sm font-semibold text-gray-700 mb-2">
-						{t('leagues.handicap.basis')}
-					</label>
-					<input
-						type="number"
-						min="0"
-						max={MAX_BOWLING_SCORE}
-						value={handicapBasis}
-						onChange={(e) => onHandicapBasisChange(Number(e.target.value))}
-						disabled={!useHandicap || disabled}
-						className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent${(!useHandicap || disabled) ? ' bg-gray-100 cursor-not-allowed' : ''}`}
-					/>
-					<p className="text-xs text-gray-500 mt-1">
-						{t('leagues.handicap.basisCalculation')}
-					</p>
-				</div>
-				<div>
-					<label className="block text-sm font-semibold text-gray-700 mb-2">
-						{t('leagues.handicap.percentage')}
-					</label>
-					<input
-						type="number"
-						min="0"
-						max="100"
-						value={handicapPercentage}
-						onChange={(e) => onHandicapPercentageChange(Number(e.target.value))}
-						disabled={!useHandicap || disabled}
-						className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent${(!useHandicap || disabled) ? ' bg-gray-100 cursor-not-allowed' : ''}`}
-					/>
-					<p className="text-xs text-gray-500 mt-1">
-						{t('leagues.handicap.percentageExplanation')}
-					</p>
-				</div>
+				<FormField label={t('leagues.handicap.basis')} helperText={t('leagues.handicap.basisCalculation')}>
+					<input type="number" min="0" max={MAX_BOWLING_SCORE} value={handicapBasis} onChange={(e) => onHandicapBasisChange(Number(e.target.value))} disabled={!useHandicap || disabled} className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent${(!useHandicap || disabled) ? ' bg-gray-100 cursor-not-allowed' : ''}`} />
+				</FormField>
+				<FormField label={t('leagues.handicap.percentage')} helperText={t('leagues.handicap.percentageExplanation')}>
+					<input type="number" min="0" max="100" value={handicapPercentage} onChange={(e) => onHandicapPercentageChange(Number(e.target.value))} disabled={!useHandicap || disabled} className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent${(!useHandicap || disabled) ? ' bg-gray-100 cursor-not-allowed' : ''}`} />
+				</FormField>
 			</div>
 		</div>
 	);

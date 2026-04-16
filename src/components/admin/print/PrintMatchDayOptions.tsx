@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
+import { Modal } from '../../common/Modal';
 import { PrintCombined } from './PrintCombined';
 
 interface PrintMatchDayOptionsProps {
@@ -55,93 +56,46 @@ export const PrintMatchDayOptions: React.FC<PrintMatchDayOptionsProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        {/* Header */}
-        <div className="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
-          <h2 className="text-xl font-bold">
-            {t('print.printOptions')}
-          </h2>
-          <p className="text-sm text-blue-100 mt-1">
-            {t('print.selectWhatToPrint')}
-          </p>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <div className="space-y-4">
-            {/* Match Day Option */}
-            <label className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
-              <input
-                type="checkbox"
-                checked={selectedOptions.matchDay}
-                onChange={() => handleCheckboxChange('matchDay')}
-                className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800">
-                  {t('print.matchDayDetails')}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {t('print.matchDayDetailsDesc')}
-                </div>
-              </div>
-            </label>
-
-            {/* Team Standings Option */}
-            <label className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
-              <input
-                type="checkbox"
-                checked={selectedOptions.teamStandings}
-                onChange={() => handleCheckboxChange('teamStandings')}
-                className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800">
-                  {t('seasons.teamStandings')}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {t('print.teamStandingsDesc')}
-                </div>
-              </div>
-            </label>
-
-            {/* Player Standings Option */}
-            <label className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
-              <input
-                type="checkbox"
-                checked={selectedOptions.playerStandings}
-                onChange={() => handleCheckboxChange('playerStandings')}
-                className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800">
-                  {t('seasons.playerStandings')}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {t('print.playerStandingsDesc')}
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold transition-colors"
-          >
+    <Modal
+      isOpen
+      title={t('print.printOptions')}
+      subtitle={t('print.selectWhatToPrint')}
+      footer={
+        <>
+          <button onClick={onClose} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold transition-colors">
             {t('common.cancel')}
           </button>
-          <button
-            onClick={handlePrint}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors flex items-center gap-2"
-          >
+          <button onClick={handlePrint} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors flex items-center gap-2">
             🖨️ {t('print.printSelected')}
           </button>
-        </div>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <label className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
+          <input type="checkbox" checked={selectedOptions.matchDay} onChange={() => handleCheckboxChange('matchDay')} className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+          <div className="flex-1">
+            <div className="font-semibold text-gray-800">{t('print.matchDayDetails')}</div>
+            <div className="text-sm text-gray-600">{t('print.matchDayDetailsDesc')}</div>
+          </div>
+        </label>
+
+        <label className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
+          <input type="checkbox" checked={selectedOptions.teamStandings} onChange={() => handleCheckboxChange('teamStandings')} className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+          <div className="flex-1">
+            <div className="font-semibold text-gray-800">{t('seasons.teamStandings')}</div>
+            <div className="text-sm text-gray-600">{t('print.teamStandingsDesc')}</div>
+          </div>
+        </label>
+
+        <label className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
+          <input type="checkbox" checked={selectedOptions.playerStandings} onChange={() => handleCheckboxChange('playerStandings')} className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+          <div className="flex-1">
+            <div className="font-semibold text-gray-800">{t('seasons.playerStandings')}</div>
+            <div className="text-sm text-gray-600">{t('print.playerStandingsDesc')}</div>
+          </div>
+        </label>
       </div>
-    </div>
+    </Modal>
   );
 };
