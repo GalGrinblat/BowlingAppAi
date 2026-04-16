@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { boardApi } from '../../../services/api/boardApi';
-import { useTranslation } from '../../../contexts/LanguageContext';
 import { GameViewLayout } from '../../common/game/GameViewLayout';
 import type { Game } from '../../../types/index';
 
@@ -9,7 +8,6 @@ export const BoardGame: React.FC = () => {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
   const location = useLocation();
-  const { t } = useTranslation();
   const [game, setGame] = useState<Game | undefined>(location.state?.game);
 
   useEffect(() => {

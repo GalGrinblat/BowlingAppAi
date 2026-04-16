@@ -127,7 +127,9 @@ export const PreMatchSetup: React.FC<PreMatchSetupProps> = ({
         </div>
 
         <div className="flex justify-end">
-          <NavButton direction="forward" label={t('games.continueToMatch')} onClick={handleContinue} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors" />
+          <button onClick={handleContinue} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+            {t('games.continueToMatch')}
+          </button>
         </div>
       </div>
     </div>
