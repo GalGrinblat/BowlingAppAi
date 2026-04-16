@@ -4,6 +4,7 @@ import { boardApi } from '../../../services/api/boardApi';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { BackButton } from '../../common/BackButton';
+import { LoadingSpinner } from '../../common/LoadingSpinner';
 import type { League, Season } from '../../../types/index';
 
 export const BoardLeague: React.FC = () => {
