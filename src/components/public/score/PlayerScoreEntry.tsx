@@ -342,8 +342,8 @@ export const PlayerScoreEntry: React.FC = () => {
       team1PlayerOrder: localGame.team1.players.map(p => p.playerId),
       team2PlayerOrder: localGame.team2.players.map(p => p.playerId),
       matchScores: localGame.matches.map(m => ({
-        team1Pins: m.team1.players.map(p => p.pins === '' ? null : parseInt(p.pins, 10)),
-        team2Pins: m.team2.players.map(p => p.pins === '' ? null : parseInt(p.pins, 10)),
+        team1Pins: m.team1.players.map(p => p.pins === '' ? 0 : parseInt(p.pins, 10)),
+        team2Pins: m.team2.players.map(p => p.pins === '' ? 0 : parseInt(p.pins, 10)),
       })),
     };
 
