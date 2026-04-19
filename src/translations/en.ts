@@ -129,6 +129,8 @@ const en: TranslationDictionary = {
     apply: 'Apply Submission',
     dismiss: 'Dismiss',
     dismissConfirm: 'Are you sure? The submitted scores will be permanently lost.',
+    reviewBanner: 'Scores submitted by {{name}} — review and edit if needed, then Save & Finish',
+    clearSubmission: 'Clear submission',
   },
 
   // Public Scoreboard
@@ -480,6 +482,9 @@ const en: TranslationDictionary = {
     hc: 'HC',
     summary: 'Summary',
     enterAllScores: 'Please enter all scores before proceeding',
+    saveAndFinish: 'Save & Finish',
+    grandTotalPoints: 'Grand Total Points',
+    notAllScoresEntered: 'Please enter all scores before finishing',
   },
 
   // Records

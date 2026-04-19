@@ -1,30 +1,106 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { gamesApi } from '../../../services/api';
 import { logger } from '../../../utils/logger';
-import { MatchView } from '../../common/game/MatchView';
 import { GameSummaryView } from '../../common/game/GameSummaryView';
+import { GameScoreSheet } from '../../common/game/GameScoreSheet';
 import { calculateMatchResults, calculateBonusPoints, clampScore } from '../../../utils/matchUtils';
 import { calculatePlayerStats, calculateGameTotals, calculateGrandTotalPoints } from '../../../utils/statsUtils';
 import { PreMatchSetup } from '../../common/game/PreMatchSetup';
-import { PendingSubmissionPanel } from './PendingSubmissionPanel';
 import { useGameInitializer } from '../../../hooks/useGameInitializer';
 import { useTranslation } from '../../../contexts/LanguageContext';
+import { ArrowLeft } from '../../common/Icons';
 
 import type { Game, GamePlayer, GameMatch, MatchPlayer } from '../../../types/index';
 
 export const SeasonGame: React.FC = () => {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const {
     game, setGame,
-    currentMatch, setCurrentMatch,
     showSummary, setShowSummary,
     showPreMatch, setShowPreMatch,
     team1Players,
     team2Players,
   } = useGameInitializer(gameId!);
+
+  const [validationError, setValidationError] = useState('');
+  const pendingApplied = useRef(false);
+
+  // Auto-apply pending submission scores when game loads (if cells are still empty)
+  useEffect(() => {
+    if (!game || pendingApplied.current) return;
+    const sub = game.pendingSubmission;
+    if (!sub || game.status === 'completed') return;
+    if (!game.team1 || !game.team2 || !game.matches) return;
+
+    const hasScores = game.matches.some((m: GameMatch) =>
+      m.team1.players.some((p: MatchPlayer) => p.pins !== '') ||
+      m.team2.players.some((p: MatchPlayer) => p.pins !== '')
+    );
+    if (hasScores) { pendingApplied.current = true; return; }
+
+    pendingApplied.current = true;
+
+    const updatedTeam1Players: GamePlayer[] = game.team1.players.map((p, i) => ({
+      ...p, absent: sub.team1AbsentFlags[i] ?? p.absent,
+    }));
+    const updatedTeam2Players: GamePlayer[] = game.team2.players.map((p, i) => ({
+      ...p, absent: sub.team2AbsentFlags[i] ?? p.absent,
+    }));
+
+    const updatedMatches: GameMatch[] = game.matches.map((m, mi) => {
+      const ms = sub.matchScores[mi];
+      if (!ms) return m;
+      return {
+        ...m,
+        team1: {
+          ...m.team1,
+          players: m.team1.players.map((p, pi) => {
+            const raw = ms.team1Pins[pi];
+            const pins = raw == null ? '' : String(raw);
+            const player = updatedTeam1Players[pi];
+            return {
+              ...p, pins,
+              bonusPoints: player
+                ? calculateBonusPoints(pins, player.average, player.absent, game.bonusRules ?? [])
+                : p.bonusPoints,
+            };
+          }),
+        },
+        team2: {
+          ...m.team2,
+          players: m.team2.players.map((p, pi) => {
+            const raw = ms.team2Pins[pi];
+            const pins = raw == null ? '' : String(raw);
+            const player = updatedTeam2Players[pi];
+            return {
+              ...p, pins,
+              bonusPoints: player
+                ? calculateBonusPoints(pins, player.average, player.absent, game.bonusRules ?? [])
+                : p.bonusPoints,
+            };
+          }),
+        },
+      };
+    });
+
+    const updated: Game = {
+      ...game,
+      team1: { ...game.team1, players: updatedTeam1Players },
+      team2: { ...game.team2, players: updatedTeam2Players },
+      matches: updatedMatches,
+      status: 'in-progress',
+    };
+    for (let i = 0; i < updatedMatches.length; i++) calculateMatchResults(updated, i);
+    updated.grandTotalPoints = calculateGrandTotalPoints(updated);
+
+    setGame(updated);
+    gamesApi.update(gameId!, updated).catch(err =>
+      logger.error('Failed to save pending pre-population:', err)
+    );
+  }, [game?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePreMatchContinue = async (finalTeam1Players: GamePlayer[], finalTeam2Players: GamePlayer[]) => {
     if (!game || !game.team1 || !game.team2) return;
@@ -45,14 +121,14 @@ export const SeasonGame: React.FC = () => {
       bonusRules: game.bonusRules ?? [],
       lineupStrategy: game.lineupStrategy,
       lineupRule: game.lineupRule,
-      grandTotalPoints: typeof game.grandTotalPoints === 'object' && game.grandTotalPoints !== null ? game.grandTotalPoints : defaultGrandTotalPoints,
+      grandTotalPoints: typeof game.grandTotalPoints === 'object' && game.grandTotalPoints !== null
+        ? game.grandTotalPoints : defaultGrandTotalPoints,
       completedAt: game.completedAt,
       updatedAt: game.updatedAt,
     };
     await gamesApi.update(gameId!, updatedGame);
     setGame(updatedGame);
     setShowPreMatch(false);
-    setCurrentMatch(1);
   };
 
   const updateMatchScore = async (
@@ -64,7 +140,6 @@ export const SeasonGame: React.FC = () => {
     const match = updated.matches[matchIndex];
     if (!match) return;
 
-    // Clamp to valid bowling score range (0–300); preserve empty string for unfinished inputs
     const parsedPins = parseInt(pins);
     const sanitizedPins = pins === '' ? '' : isNaN(parsedPins) ? '' : String(clampScore(parsedPins));
 
@@ -89,13 +164,11 @@ export const SeasonGame: React.FC = () => {
     if (updated.matches && updated.team1?.players && updated.team2?.players) {
       allMatchesComplete = updated.matches.every((m: GameMatch) => {
         if (!m.team1?.players || !m.team2?.players) return false;
-        const team1Complete = updated.team1?.players?.every((p: GamePlayer, pIdx: number) =>
-          p.absent || (m.team1.players[pIdx] && m.team1.players[pIdx].pins !== '')
-        );
-        const team2Complete = updated.team2?.players?.every((p: GamePlayer, pIdx: number) =>
-          p.absent || (m.team2.players[pIdx] && m.team2.players[pIdx].pins !== '')
-        );
-        return team1Complete && team2Complete;
+        const t1 = updated.team1?.players?.every((p: GamePlayer, pIdx: number) =>
+          p.absent || (m.team1.players[pIdx] && m.team1.players[pIdx].pins !== ''));
+        const t2 = updated.team2?.players?.every((p: GamePlayer, pIdx: number) =>
+          p.absent || (m.team2.players[pIdx] && m.team2.players[pIdx].pins !== ''));
+        return t1 && t2;
       });
     }
 
@@ -106,6 +179,7 @@ export const SeasonGame: React.FC = () => {
       updated.status = 'in-progress';
     }
 
+    setValidationError('');
     const previous = game;
     setGame(updated);
     try {
@@ -134,40 +208,6 @@ export const SeasonGame: React.FC = () => {
     }
   };
 
-  const goToNextMatch = () => {
-    if (!game?.matches || !game?.team1 || !game?.team2) return;
-    const matchIndex = currentMatch - 1;
-    const match = game.matches[matchIndex];
-    if (!match?.team1 || !match?.team2) return;
-    const team1Complete = game.team1.players?.every((p: GamePlayer, idx: number) =>
-      p.absent || (match.team1.players[idx] && match.team1.players[idx].pins !== '')
-    );
-    const team2Complete = game.team2.players?.every((p: GamePlayer, idx: number) =>
-      p.absent || (match.team2.players[idx] && match.team2.players[idx].pins !== '')
-    );
-    if (!team1Complete || !team2Complete) {
-      alert(t('games.enterAllScores'));
-      return;
-    }
-    if (currentMatch < game.matches.length) {
-      setCurrentMatch(currentMatch + 1);
-    } else {
-      setShowSummary(true);
-    }
-  };
-
-  const goToPreviousMatch = () => {
-    if (!game?.matches) return;
-    if (showSummary) {
-      setShowSummary(false);
-      setCurrentMatch(game.matches.length);
-    } else if (currentMatch > 1) {
-      setCurrentMatch(currentMatch - 1);
-    } else {
-      setShowPreMatch(true);
-    }
-  };
-
   const handleCancel = async () => {
     if (game?.matches) {
       const hasAnyScores = game.matches.some((m: GameMatch) =>
@@ -187,19 +227,7 @@ export const SeasonGame: React.FC = () => {
     navigate(-1);
   };
 
-  const handleApplySubmission = async (updatedGame: Game) => {
-    setGame(updatedGame);
-    setShowPreMatch(false);
-    setCurrentMatch(1);
-    try {
-      await gamesApi.update(gameId!, updatedGame);
-      await gamesApi.clearPending(gameId!);
-    } catch (error) {
-      logger.error('Failed to apply pending submission:', error);
-    }
-  };
-
-  const handleDismissSubmission = async () => {
+  const handleDismissPending = async () => {
     try {
       await gamesApi.clearPending(gameId!);
       setGame(prev => prev ? { ...prev, pendingSubmission: undefined } : prev);
@@ -210,6 +238,21 @@ export const SeasonGame: React.FC = () => {
 
   const finishGame = async () => {
     if (!game?.team1 || !game?.team2 || !game?.matches) return;
+
+    // Validate all non-absent players have scores
+    const missing = game.matches.some((m: GameMatch) =>
+      game.team1!.players.some((p: GamePlayer, pi: number) =>
+        !p.absent && (!m.team1.players[pi] || m.team1.players[pi].pins === '')
+      ) ||
+      game.team2!.players.some((p: GamePlayer, pi: number) =>
+        !p.absent && (!m.team2.players[pi] || m.team2.players[pi].pins === '')
+      )
+    );
+    if (missing) {
+      setValidationError(t('games.notAllScoresEntered'));
+      return;
+    }
+
     const updated: Game = {
       ...game,
       status: 'completed',
@@ -225,7 +268,8 @@ export const SeasonGame: React.FC = () => {
       bonusRules: game.bonusRules ?? [],
       lineupStrategy: game.lineupStrategy,
       lineupRule: game.lineupRule,
-      grandTotalPoints: typeof game.grandTotalPoints === 'object' && game.grandTotalPoints !== null ? game.grandTotalPoints : { team1: 0, team2: 0 },
+      grandTotalPoints: typeof game.grandTotalPoints === 'object' && game.grandTotalPoints !== null
+        ? game.grandTotalPoints : { team1: 0, team2: 0 },
       updatedAt: game.updatedAt,
       team1: game.team1,
       team2: game.team2,
@@ -237,16 +281,6 @@ export const SeasonGame: React.FC = () => {
 
   if (!game) return <div>{t('common.loading')}</div>;
 
-  if (game.pendingSubmission && game.status !== 'completed') {
-    return (
-      <PendingSubmissionPanel
-        game={game}
-        onApply={handleApplySubmission}
-        onDismiss={handleDismissSubmission}
-      />
-    );
-  }
-
   if (showSummary) {
     const totals = calculateGameTotals(game);
     const playerStats = calculatePlayerStats(game);
@@ -255,7 +289,7 @@ export const SeasonGame: React.FC = () => {
         game={game}
         totals={totals}
         playerStats={playerStats}
-        onBack={goToPreviousMatch}
+        onBack={() => setShowSummary(false)}
         onFinish={finishGame}
       />
     );
@@ -273,17 +307,81 @@ export const SeasonGame: React.FC = () => {
     );
   }
 
+  const sub = game.pendingSubmission;
+
   return (
-    <MatchView
-      matchNumber={currentMatch}
-      game={game}
-      onUpdateScore={updateMatchScore}
-      onToggleAbsent={togglePlayerAbsent}
-      onNavigate={(direction: string) => {
-        if (direction === 'next') goToNextMatch();
-        else goToPreviousMatch();
-      }}
-      onCancel={handleCancel}
-    />
+    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold">{t('common.round')} {game.round} · {t('common.matchDay')} {game.matchDay}</h1>
+          <p className="text-gray-400 text-sm mt-0.5">{game.team1?.name} vs {game.team2?.name}</p>
+        </div>
+      </div>
+
+      {/* Pending submission banner */}
+      {sub && game.status !== 'completed' && (
+        <div className="bg-yellow-900/40 border border-yellow-500 rounded-xl p-4 mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-yellow-300 font-semibold text-sm">
+              {t('pending.reviewBanner').replace('{{name}}', sub.submitterName ?? t('pending.submittedBy'))}
+            </p>
+            <p className="text-yellow-400/70 text-xs mt-0.5">
+              {t('pending.submittedAt')}: {new Date(sub.submittedAt).toLocaleString()}
+            </p>
+          </div>
+          <button
+            onClick={handleDismissPending}
+            className="shrink-0 text-xs text-yellow-400 hover:text-yellow-200 underline"
+          >
+            {t('pending.clearSubmission')}
+          </button>
+        </div>
+      )}
+
+      {/* Score sheet */}
+      <div className="bg-white rounded-xl overflow-hidden mb-4">
+        <GameScoreSheet
+          game={game}
+          mode="edit"
+          onUpdateScore={updateMatchScore}
+          onToggleAbsent={togglePlayerAbsent}
+        />
+      </div>
+
+      {/* Grand total points */}
+      {game.grandTotalPoints && (game.grandTotalPoints.team1 > 0 || game.grandTotalPoints.team2 > 0) && (
+        <div className="bg-gray-800 rounded-xl p-4 mb-4 text-center">
+          <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">{t('games.grandTotalPoints')}</p>
+          <div className="flex justify-center items-center gap-4 text-lg font-bold">
+            <span className="text-orange-400">{game.team1?.name}: {game.grandTotalPoints.team1}</span>
+            <span className="text-gray-500">·</span>
+            <span className="text-blue-400">{game.team2?.name}: {game.grandTotalPoints.team2}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Validation error */}
+      {validationError && (
+        <p className="text-red-400 text-sm text-center mb-3">{validationError}</p>
+      )}
+
+      {/* Actions */}
+      <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <button
+          onClick={handleCancel}
+          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors"
+        >
+          <ArrowLeft size={18} />
+          {t('common.back')}
+        </button>
+        <button
+          onClick={finishGame}
+          className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 rounded-lg font-bold transition-colors shadow-lg"
+        >
+          {t('games.saveAndFinish')}
+        </button>
+      </div>
+    </div>
   );
 };

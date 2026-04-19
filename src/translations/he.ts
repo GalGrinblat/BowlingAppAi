@@ -129,6 +129,8 @@ const he: TranslationDictionary = {
     apply: 'החל הגשה',
     dismiss: 'בטל',
     dismissConfirm: 'האם אתה בטוח? התוצאות שהוגשו יאבדו לצמיתות.',
+    reviewBanner: 'ניקוד הוגש על ידי {{name}} — בדוק ועדכן אם צריך, לאחר מכן שמור וסיים',
+    clearSubmission: 'נקה הגשה',
   },
 
   // לוח תוצאות ציבורי
@@ -480,6 +482,9 @@ const he: TranslationDictionary = {
     hc: 'הנד\'',
     summary: 'סיכום',
     enterAllScores: 'אנא הזן את כל הניקודים לפני המשך',
+    saveAndFinish: 'שמור וסיים',
+    grandTotalPoints: 'נקודות סה"כ',
+    notAllScoresEntered: 'אנא הזן את כל הניקודים לפני הסיום',
   },
 
   // שיאים

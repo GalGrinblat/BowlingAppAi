@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { calcGamePoints } from '../../../utils/matchUtils';
-import { GameScoreTable } from '../GameScoreTable';
+import { GameScoreSheet } from './GameScoreSheet';
 import { PageHeader } from '../PageHeader';
 import type { Game } from '../../../types/index';
 
@@ -48,7 +48,7 @@ export const GameViewLayout: React.FC<GameViewLayoutProps> = ({ game, onBack }) 
             <span className="text-blue-300 min-w-0 truncate max-w-[35%]">{game.team2?.name}</span>
           </div>
         </div>
-        <GameScoreTable game={game} />
+        <GameScoreSheet game={game} mode="readonly" />
       </div>
     </div>
   );

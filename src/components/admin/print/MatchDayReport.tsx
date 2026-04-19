@@ -4,7 +4,7 @@ import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { calculateHeadToHead } from '../../../utils/headToHeadUtils';
 import { PlayerRosterTable } from './PlayerRosterTable';
-import { ScoreSheet } from './ScoreSheet';
+import { GameScoreSheet } from '../../common/game/GameScoreSheet';
 import { SignatureBlock } from './SignatureBlock';
 import type { Game, Season, League, Team, TeamStanding, ScheduleMatchDay } from '../../../types/index';
 
@@ -129,10 +129,11 @@ export const MatchDayReport: React.FC<MatchDayReportProps> = ({
               {/* Score Sheet Section */}
               <div className="mt-8 border-t-2 border-gray-300 pt-6">
                 <h5 className="text-xl font-bold text-gray-800 mb-4 text-center">{t('print.scoreSheet')}</h5>
-                <div className="grid grid-cols-2 gap-8">
-                  <ScoreSheet teamName={team1.name} players={team1Players} matchesPerGame={game.matchesPerGame} accentColor="blue" />
-                  <ScoreSheet teamName={team2.name} players={team2Players} matchesPerGame={game.matchesPerGame} accentColor="purple" />
-                </div>
+                <GameScoreSheet
+                  game={game}
+                  mode="print"
+                  printPlayers={{ team1: team1Players, team2: team2Players }}
+                />
               </div>
 
               {/* Signature + QR Section */}

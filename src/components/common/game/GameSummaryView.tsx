@@ -1,6 +1,6 @@
 import { ArrowLeft, CheckCircle } from '../Icons';
 import { GameTeamStatsCard } from './GameTeamStatsCard';
-import { GameScoreTable } from '../GameScoreTable';
+import { GameScoreSheet } from './GameScoreSheet';
 import { useTranslation } from '../../../contexts/LanguageContext';
 
 import type { GameSummaryViewProps } from '../../../types/index';
@@ -37,7 +37,7 @@ export const GameSummaryView: React.FC<GameSummaryViewProps> = ({ game, totals, 
 
       {/* Full Score Table */}
       <div className="bg-white rounded-lg mb-6 overflow-hidden">
-        <GameScoreTable game={game} />
+        <GameScoreSheet game={game} mode="readonly" />
       </div>
 
       {/* Game Statistics */}
