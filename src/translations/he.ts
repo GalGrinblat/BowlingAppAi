@@ -9,7 +9,6 @@ const he: TranslationDictionary = {
     saveError: 'שגיאה בשמירת העונה. אנא נסה שוב.'
   },
   print: {
-    vs: 'נגד',
     scoreSheet: 'גיליון ניקוד',
     teamCaptainSignature: 'חתימת קפטן הקבוצה',
     date: 'תאריך',
@@ -25,6 +24,7 @@ const he: TranslationDictionary = {
   },
   // מילים ופעולות נפוצות
   common: {
+    vs: 'נגד',
     remove: 'הסר',
     save: 'שמור',
     cancel: 'בטל',
@@ -376,7 +376,6 @@ const he: TranslationDictionary = {
     headToHeadRecords: 'רשומות התמודדות ישירות',
     headToHeadDesc: 'כל רשומות ההתמודדויות בין קבוצות עבור עונה זו',
     noMatchupsYet: 'עדיין לא היו התמודדויות',
-    vs: 'נגד',
     lastResult: 'תוצאה אחרונה',
     lastMD: 'מחזור אחרון',
     participation: 'השתתפות%',
@@ -582,7 +581,6 @@ const he: TranslationDictionary = {
     highNGameSeries: 'סדרת {{n}} משחקים גבוהה',
     completedOn: 'הושלם',
     nextGame: 'המשחק הבא',
-    vs: 'נגד',
     enterScores: 'הזן תוצאות',
     scoresPendingReview: 'תוצאות הוגשו — ממתין לאישור מנהל',
     playerStatistics: 'סטטיסטיקת שחקן',

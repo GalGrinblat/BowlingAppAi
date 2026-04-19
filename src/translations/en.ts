@@ -9,7 +9,6 @@ const en: TranslationDictionary = {
     saveError: 'Error saving season. Please try again.'
   },
   print: {
-    vs: 'VS',
     scoreSheet: 'Score Sheet',
     teamCaptainSignature: 'Team Captain Signature',
     date: 'Date',
@@ -25,6 +24,7 @@ const en: TranslationDictionary = {
   },
   // Common words and actions
   common: {
+    vs: 'vs',
     remove: 'Remove',
     save: 'Save',
     cancel: 'Cancel',
@@ -376,7 +376,6 @@ const en: TranslationDictionary = {
     headToHeadRecords: 'Head-to-Head Records',
     headToHeadDesc: 'All team matchup records for this season',
     noMatchupsYet: 'No matchups yet',
-    vs: 'versus',
     lastResult: 'Last Result',
     lastMD: 'Last MD',
     participation: 'Part.%',
@@ -582,7 +581,6 @@ const en: TranslationDictionary = {
     highNGameSeries: 'High {{n}}-Game Series',
     completedOn: 'Completed',
     nextGame: 'Next Game',
-    vs: 'vs',
     enterScores: 'Enter Scores',
     scoresPendingReview: 'Scores submitted — awaiting admin review',
     playerStatistics: 'Player Statistics',

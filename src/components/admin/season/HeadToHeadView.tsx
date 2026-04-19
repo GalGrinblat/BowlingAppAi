@@ -29,7 +29,7 @@ export const HeadToHeadView: React.FC<HeadToHeadViewProps> = ({ teams, games }) 
                   if (h2h.gamesPlayed === 0) {
                     return (
                       <div key={opponent.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-gray-600">{t('seasons.vs')} {opponent.name}</span>
+                        <span className="text-gray-600">{t('common.vs')} {opponent.name}</span>
                         <span className="text-sm text-gray-500 italic">{t('seasons.noMatchupsYet')}</span>
                       </div>
                     );
@@ -47,7 +47,7 @@ export const HeadToHeadView: React.FC<HeadToHeadViewProps> = ({ teams, games }) 
                       'bg-gray-50 border border-gray-200'
                     }`}>
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-800">{t('seasons.vs')} {opponent.name}</div>
+                        <div className="font-semibold text-gray-800">{t('common.vs')} {opponent.name}</div>
                         <div className="text-sm text-gray-600 mt-1">
                           {formatHeadToHead(h2h, team.name, opponent.name)}
                         </div>

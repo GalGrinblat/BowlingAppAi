@@ -507,7 +507,7 @@ export const PlayerDashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="font-semibold text-blue-600">{myTeam?.name}</span>
-                      <span className="text-gray-400 text-sm">{t('playerDashboard.vs')}</span>
+                      <span className="text-gray-400 text-sm">{t('common.vs')}</span>
                       <span className="font-semibold text-gray-700">{opponentTeam?.name}</span>
                     </div>
                     {hasPending && (

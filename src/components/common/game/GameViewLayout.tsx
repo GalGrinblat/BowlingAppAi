@@ -42,10 +42,12 @@ export const GameViewLayout: React.FC<GameViewLayoutProps> = ({ game, onBack }) 
       {/* Game Summary Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-3">
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-white font-bold text-lg text-center">
-            <span className="text-orange-300 min-w-0 truncate max-w-[35%]">{game.team1?.name}</span>
-            <span className="shrink-0">{team1Points} 🆚 {team2Points}</span>
-            <span className="text-blue-300 min-w-0 truncate max-w-[35%]">{game.team2?.name}</span>
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-white font-bold text-lg text-center">
+            <span className="text-orange-300 min-w-0 truncate max-w-[30%]">{game.team1?.name}</span>
+            <span className="shrink-0">{team1Points}</span>
+            <span className="shrink-0 text-gray-300">🆚</span>
+            <span className="shrink-0">{team2Points}</span>
+            <span className="text-blue-300 min-w-0 truncate max-w-[30%]">{game.team2?.name}</span>
           </div>
         </div>
         <GameScoreSheet game={game} mode="readonly" />

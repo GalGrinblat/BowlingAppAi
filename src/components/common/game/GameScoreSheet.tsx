@@ -345,7 +345,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                         )}
                       </td>
                       <td className={`px-1 py-1.5 text-center font-bold ${thBorder} ${isPrint ? blankCellH : ''}`}>
-                        {!isPrint && matchTeamWinnerPts > 0 ? formatPts(matchTeamWinnerPts) : ''}
+                        {!isPrint ? formatPts(matchTeamWinnerPts) : ''}
                       </td>
                     </React.Fragment>
                   );
@@ -359,7 +359,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   )}
                 </td>
                 <td className={`px-1 py-1.5 text-center font-bold ${thBorder} ${isPrint ? blankCellH : `${accentPtsColor}`}`}>
-                  {!isPrint && grandPts > 0 ? formatPts(grandPts) : ''}
+                  {!isPrint ? formatPts(grandPts) : ''}
                 </td>
               </tr>
             )}
@@ -375,7 +375,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   <React.Fragment key={`tpt-${mi}`}>
                     <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
                     <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
-                      {!isPrint && matchAllPts > 0 ? formatPts(matchAllPts) : ''}
+                      {!isPrint ? formatPts(matchAllPts) : ''}
                     </td>
                   </React.Fragment>
                 );

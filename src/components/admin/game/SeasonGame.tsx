@@ -160,22 +160,7 @@ export const SeasonGame: React.FC = () => {
     calculateMatchResults(updated, matchIndex);
     updated.grandTotalPoints = calculateGrandTotalPoints(updated);
 
-    let allMatchesComplete = false;
-    if (updated.matches && updated.team1?.players && updated.team2?.players) {
-      allMatchesComplete = updated.matches.every((m: GameMatch) => {
-        if (!m.team1?.players || !m.team2?.players) return false;
-        const t1 = updated.team1?.players?.every((p: GamePlayer, pIdx: number) =>
-          p.absent || (m.team1.players[pIdx] && m.team1.players[pIdx].pins !== ''));
-        const t2 = updated.team2?.players?.every((p: GamePlayer, pIdx: number) =>
-          p.absent || (m.team2.players[pIdx] && m.team2.players[pIdx].pins !== ''));
-        return t1 && t2;
-      });
-    }
-
-    if (allMatchesComplete) {
-      updated.status = 'completed';
-      updated.completedAt = new Date().toISOString();
-    } else if (updated.status === 'pending') {
+    if (updated.status === 'pending') {
       updated.status = 'in-progress';
     }
 

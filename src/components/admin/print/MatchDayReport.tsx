@@ -103,7 +103,7 @@ export const MatchDayReport: React.FC<MatchDayReportProps> = ({
                   )}
                 </div>
                 <div className="col-span-1 text-center">
-                  <div className="text-5xl font-bold text-gray-400">{t('print.vs')}</div>
+                  <div className="text-5xl font-bold text-gray-400">{t('common.vs')}</div>
                   {h2h.gamesPlayed > 0 && (
                     <div className="mt-2 text-xs text-gray-600">
                       {t('seasons.headToHead')}: {h2h.team1Wins}-{h2h.team2Wins}
