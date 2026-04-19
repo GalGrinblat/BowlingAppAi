@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { ABSENT_PLAYER_PENALTY } from '../../../constants/bowling';
 import type { Game, GameMatch, GamePlayer } from '../../../types/index';
@@ -28,7 +28,11 @@ interface ScoreInputCellProps {
 
 const ScoreInputCell: React.FC<ScoreInputCellProps> = ({ value, tabIndex, onCommit, accentFocus }) => {
   const [local, setLocal] = useState(value);
-  useEffect(() => setLocal(value), [value]);
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setLocal(value);
+  }
 
   return (
     <input
