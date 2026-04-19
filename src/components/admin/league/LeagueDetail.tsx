@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { leaguesApi, seasonsApi, teamsApi, gamesApi } from '../../../services/api';
+import { leaguesApi, seasonsApi, teamsApi } from '../../../services/api';
 import { calculateTeamStandings } from '../../../utils/standingsUtils';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
@@ -10,20 +10,49 @@ import { NavButton } from '../../common/nav/NavButton';
 import { BackButton } from '../../common/BackButton';
 import { PageHeader } from '../../common/PageHeader';
 
-import type { League, Season, Team, TeamStanding, Game } from '../../../types/index';
+import type { League, Season, Team, TeamStanding } from '../../../types/index';
+
+const LeagueDetailSkeleton: React.FC = () => (
+  <div className="space-y-6 animate-pulse">
+    <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="h-9 w-9 bg-gray-200 rounded-lg" />
+        <div className="h-8 bg-gray-200 rounded w-48" />
+      </div>
+      <div className="flex flex-wrap gap-3 mt-3">
+        <div className="h-4 bg-gray-100 rounded w-24" />
+        <div className="h-4 bg-gray-100 rounded w-20" />
+        <div className="h-4 bg-gray-100 rounded w-28" />
+      </div>
+    </div>
+    <div className="bg-gray-200 rounded-xl h-28" />
+    <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="h-6 bg-gray-200 rounded w-40 mb-4" />
+      <div className="space-y-3">
+        <div className="h-20 bg-gray-100 rounded-lg" />
+        <div className="h-20 bg-gray-100 rounded-lg" />
+      </div>
+    </div>
+  </div>
+);
 
 export const LeagueDetail: React.FC = () => {
   const navigate = useNavigate();
   const { leagueId } = useParams<{ leagueId: string }>();
-  const { loadDashboardData } = useAdminData();
+  const { loadDashboardData, leagues, gamesMap, isLoadingData } = useAdminData();
   const { t } = useTranslation();
   const { formatDate } = useDateFormat();
   const [league, setLeague] = useState<League | null>(null);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [seasonStandings, setSeasonStandings] = useState<Record<string, TeamStanding[]>>({});
   const [seasonTeams, setSeasonTeams] = useState<Record<string, Team[]>>({});
-  const [seasonGames, setSeasonGames] = useState<Record<string, Game[]>>({});
+  const [standingsLoading, setStandingsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // League data is always fresh in context — LeagueManagement refreshes context after every mutation.
+  // Use it for instant header render before the API fetch returns.
+  const contextLeague = leagues.find(l => l.id === leagueId) ?? null;
+  const displayLeague = league ?? contextLeague;
 
   const loadLeagueData = async () => {
     const [leagueData, seasonsData] = await Promise.all([
@@ -32,37 +61,45 @@ export const LeagueDetail: React.FC = () => {
     ]);
     if (!leagueData) return;
     setLeague(leagueData);
-    setSeasons(seasonsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+    const sorted = seasonsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    setSeasons(sorted);
 
-    // Preload data for all completed seasons in parallel
-    const completedSeasons = seasonsData.filter(s => s.status === 'completed');
+    const completedSeasons = sorted.filter(s => s.status === 'completed');
+    if (completedSeasons.length === 0) return;
+
+    setStandingsLoading(true);
     const seasonResults = await Promise.all(
       completedSeasons.map(async season => {
-        const [teams, games] = await Promise.all([
-          teamsApi.getBySeason(season.id),
-          gamesApi.getBySeason(season.id),
-        ]);
-        return { seasonId: season.id, teams, games, standings: calculateTeamStandings(teams, games) };
+        const teams = await teamsApi.getBySeason(season.id);
+        // gamesMap from context is reliable for completed seasons — their game data is final
+        const games = gamesMap[season.id] ?? [];
+        return { seasonId: season.id, teams, standings: calculateTeamStandings(teams, games) };
       })
     );
 
     const standingsData: Record<string, TeamStanding[]> = {};
     const teamsData: Record<string, Team[]> = {};
-    const gamesData: Record<string, Game[]> = {};
     for (const r of seasonResults) {
       standingsData[r.seasonId] = r.standings;
       teamsData[r.seasonId] = r.teams;
-      gamesData[r.seasonId] = r.games;
     }
     setSeasonStandings(standingsData);
     setSeasonTeams(teamsData);
-    setSeasonGames(gamesData);
+    setStandingsLoading(false);
   };
 
   useEffect(() => {
-    loadLeagueData();
+    setLeague(null);
+    setSeasons([]);
+    setSeasonStandings({});
+    setSeasonTeams({});
+    setStandingsLoading(false);
+    // Wait for context to finish loading so gamesMap is populated before computing standings
+    if (leagueId && !isLoadingData) {
+      loadLeagueData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leagueId]);
+  }, [leagueId, isLoadingData]);
 
   const activeSeason = seasons.find(s => s.status === 'active');
   const completedSeasons = seasons.filter(s => s.status === 'completed');
@@ -70,7 +107,7 @@ export const LeagueDetail: React.FC = () => {
   const handleExportLeague = async () => {
     const exportData = await exportLeague(leagueId!);
     if (exportData) {
-      const filename = `${league?.name.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+      const filename = `${displayLeague?.name.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.json`;
       downloadExportFile(exportData, filename);
       alert(t('leagues.exportSuccess'));
     }
@@ -91,21 +128,26 @@ export const LeagueDetail: React.FC = () => {
       if (result.success) {
         alert(t('leagues.importSuccess'));
         await loadDashboardData();
-        await loadLeagueData();
+        // useEffect re-runs loadLeagueData automatically when isLoadingData transitions false
       } else {
         alert(`${t('leagues.importError')}: ${result.error}`);
       }
     } catch (error) {
       alert(`${t('leagues.importError')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    
-    // Reset input
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  if (!league) {
+  // Show skeleton while context hasn't loaded yet (direct URL navigation or app startup)
+  const isInitializing = isLoadingData || (leagues.length === 0 && !displayLeague);
+  if (isInitializing) {
+    return <LeagueDetailSkeleton />;
+  }
+
+  if (!displayLeague) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-4 mb-6">
@@ -122,8 +164,8 @@ export const LeagueDetail: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        title={league.name}
-        subtitle={league.description}
+        title={displayLeague.name}
+        subtitle={displayLeague.description}
         back={{ label: t('leagues.backToLeagues'), onClick: () => navigate('/admin/leagues') }}
         actions={<>
           <button onClick={() => navigate(`/admin/leagues/${leagueId}/seasons/new`)} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm whitespace-nowrap">
@@ -139,10 +181,10 @@ export const LeagueDetail: React.FC = () => {
         </>}
       >
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 mt-3">
-          {league.dayOfWeek && <span>📅 {t(`days.${league.dayOfWeek.toLowerCase()}Plural`)}</span>}
-          <span>👥 <span className="ltr-content">{league.defaultSeasonConfigurations.playersPerTeam}</span> {t('common.playersPerTeam')}</span>
-          <span>🎳 <span className="ltr-content">{league.defaultSeasonConfigurations.matchesPerGame || 3}</span> {t('leagues.matchesPerGame')}</span>
-          {league.defaultSeasonConfigurations.useHandicap && <span>⚖️ {t('leagues.handicapDisplay').replace('{{percentage}}', String(league.defaultSeasonConfigurations.handicapPercentage || 100)).replace('{{basis}}', String(league.defaultSeasonConfigurations.handicapBasis))}</span>}
+          {displayLeague.dayOfWeek && <span>📅 {t(`days.${displayLeague.dayOfWeek.toLowerCase()}Plural`)}</span>}
+          <span>👥 <span className="ltr-content">{displayLeague.defaultSeasonConfigurations.playersPerTeam}</span> {t('common.playersPerTeam')}</span>
+          <span>🎳 <span className="ltr-content">{displayLeague.defaultSeasonConfigurations.matchesPerGame || 3}</span> {t('leagues.matchesPerGame')}</span>
+          {displayLeague.defaultSeasonConfigurations.useHandicap && <span>⚖️ {t('leagues.handicapDisplay').replace('{{percentage}}', String(displayLeague.defaultSeasonConfigurations.handicapPercentage || 100)).replace('{{basis}}', String(displayLeague.defaultSeasonConfigurations.handicapBasis))}</span>}
         </div>
       </PageHeader>
 
@@ -170,11 +212,11 @@ export const LeagueDetail: React.FC = () => {
           <h2 className="text-xl font-bold text-gray-800 mb-4">{t('seasons.seasonArchives')}</h2>
           <div className="space-y-3">
             {completedSeasons.map(season => {
-              // Get preloaded data
               const standings = seasonStandings[season.id] || [];
               const champion = standings[0];
               const teams = seasonTeams[season.id] || [];
-              const games = seasonGames[season.id] || [];
+              const gamesCount = gamesMap[season.id]?.length ?? 0;
+              const isLoadingStandings = standingsLoading && !seasonStandings[season.id];
 
               return (
                 <div
@@ -190,16 +232,24 @@ export const LeagueDetail: React.FC = () => {
                           {t('common.completed').toUpperCase()}
                         </span>
                       </div>
-                      {champion && (
+                      {isLoadingStandings ? (
+                        <div className="h-5 bg-gray-100 rounded w-48 mb-2 animate-pulse" />
+                      ) : champion ? (
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-yellow-500 text-xl">🏆</span>
                           <span className="font-semibold text-purple-600">{champion.teamName}</span>
                           <span className="text-sm text-gray-500">• {champion.points} points</span>
                         </div>
-                      )}
+                      ) : null}
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
-                        <span>👥 <span className="ltr-content">{teams.length}</span> {t('leagues.teams')}</span>
-                        <span>🎳 <span className="ltr-content">{games.length}</span> {t('leagues.games')}</span>
+                        {isLoadingStandings ? (
+                          <div className="h-4 bg-gray-100 rounded w-40 animate-pulse" />
+                        ) : (
+                          <>
+                            <span>👥 <span className="ltr-content">{teams.length}</span> {t('leagues.teams')}</span>
+                            <span>🎳 <span className="ltr-content">{gamesCount}</span> {t('leagues.games')}</span>
+                          </>
+                        )}
                         <span>📅 <span className="ltr-content">{formatDate(season.startDate)}</span></span>
                         {season.updatedAt && (
                           <span>✓ {formatDate(season.updatedAt)}</span>
@@ -214,7 +264,7 @@ export const LeagueDetail: React.FC = () => {
         </div>
       )}
 
-      {seasons.length === 0 && (
+      {seasons.length === 0 && league !== null && (
         <div className="bg-white rounded-xl shadow-lg p-12 text-center">
           <div className="text-6xl mb-4">🏆</div>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">{t('seasons.noSeasonsYet')}</h3>
