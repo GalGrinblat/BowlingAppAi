@@ -40,8 +40,8 @@ jest.mock('../../../src/services/api/games', () => ({
   },
 }));
 
-jest.mock('../../../src/components/common/GameScoreTable', () => ({
-  GameScoreTable: () => <div data-testid="game-score-table" />,
+jest.mock('../../../src/components/common/game/GameScoreSheet', () => ({
+  GameScoreSheet: () => <div data-testid="game-score-table" />,
 }));
 
 beforeAll(() => {
