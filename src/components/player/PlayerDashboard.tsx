@@ -10,8 +10,8 @@ import { gamesApi } from '../../services/api/games';
 import { logger } from '../../utils/logger';
 import { useTranslation } from '../../contexts/LanguageContext';
 import { useDateFormat } from '../../hooks/useDateFormat';
-import { useNavLabel } from '../../hooks/useNavLabel';
 import { NavLink } from '../common/nav/NavLink';
+import { ArrowLeft, ArrowRight } from '../common/Icons';
 import { getPlayerDisplayName } from '../../utils/playerUtils';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -21,9 +21,9 @@ export const PlayerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { playerData, isLoading: authIsLoading, session } = useAuth();
   const playerId = playerData?.id ?? '';
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { formatDate } = useDateFormat();
-  const { forward } = useNavLabel();
+  const ForwardIcon = isRTL ? ArrowLeft : ArrowRight;
   const [player, setPlayer] = useState<Player | null>(null);
   const [playerLeagues, setPlayerLeagues] = useState<League[]>([]);
   const [recentCompletedGames, setRecentCompletedGames] = useState<Game[]>([]);
@@ -592,7 +592,7 @@ export const PlayerDashboard: React.FC = () => {
                               {t('playerDashboard.lost')}
                             </span>
                           )}
-                          <span className="text-purple-600 font-semibold hidden sm:inline">{forward(t('common.view'))}</span>
+                          <span className="text-purple-600 font-semibold hidden sm:inline flex items-center gap-1">{t('common.view')}<ForwardIcon size={14} /></span>
                         </div>
                       </div>
 

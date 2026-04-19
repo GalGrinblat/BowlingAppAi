@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavLabel } from '../../../hooks/useNavLabel';
+import { useTranslation } from '../../../contexts/LanguageContext';
+import { ArrowLeft, ArrowRight } from '../Icons';
 
 interface NavButtonProps {
   direction: 'back' | 'forward';
@@ -16,10 +17,14 @@ export const NavButton: React.FC<NavButtonProps> = ({
   className = 'text-gray-600 hover:text-gray-800',
   type = 'button',
 }) => {
-  const { back, forward } = useNavLabel();
+  const { isRTL } = useTranslation();
+  const isForward = direction === 'forward';
+  const Icon = isForward
+    ? (isRTL ? ArrowLeft : ArrowRight)
+    : (isRTL ? ArrowRight : ArrowLeft);
   return (
-    <button type={type} onClick={onClick} className={className}>
-      {direction === 'back' ? back(label) : forward(label)}
+    <button type={type} onClick={onClick} className={`flex items-center gap-1.5 ${className}`}>
+      {isForward ? <><span>{label}</span><Icon size={16} /></> : <><Icon size={16} /><span>{label}</span></>}
     </button>
   );
 };

@@ -5,13 +5,13 @@ import { LoadingSpinner } from '../../common/LoadingSpinner';
 import { EmptyState } from '../../common/EmptyState';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
-import { useNavLabel } from '../../../hooks/useNavLabel';
+import { ArrowLeft, ArrowRight } from '../../common/Icons';
 import type { League, Season, Game } from '../../../types/index';
 
 export const BoardHome: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { formatDate } = useDateFormat();
-  const { forward } = useNavLabel();
+  const ForwardIcon = isRTL ? ArrowLeft : ArrowRight;
   const [leagues, setLeagues] = useState<League[]>([]);
   const [seasonsByLeague, setSeasonsByLeague] = useState<Record<string, Season[]>>({});
   const [recentGames, setRecentGames] = useState<Game[]>([]);
@@ -155,7 +155,7 @@ export const BoardHome: React.FC = () => {
                   </div>
                   <div className="shrink-0 flex items-center gap-2 text-xs text-gray-400 ml-2">
                     {game.completedAt && <span>{formatDate(game.completedAt)}</span>}
-                    <span className="text-blue-600 font-semibold">{forward(t('board.viewFullGame'))}</span>
+                    <span className="text-blue-600 font-semibold flex items-center gap-1">{t('board.viewFullGame')}<ForwardIcon size={14} /></span>
                   </div>
                 </Link>
               );

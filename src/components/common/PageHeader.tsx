@@ -19,9 +19,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, back, a
         {subtitle && <p className="text-gray-600">{subtitle}</p>}
       </div>
       {(back || actions) && (
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex flex-col items-end gap-2 shrink-0">
           {back && <BackButton {...back} />}
-          {actions}
+          {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
         </div>
       )}
     </div>

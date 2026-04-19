@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useNavLabel } from '../../../hooks/useNavLabel';
+import { useTranslation } from '../../../contexts/LanguageContext';
+import { ArrowLeft, ArrowRight } from '../Icons';
 
 interface NavLinkProps {
   direction: 'back' | 'forward';
@@ -9,16 +10,15 @@ interface NavLinkProps {
   className?: string;
 }
 
-export const NavLink: React.FC<NavLinkProps> = ({
-  direction,
-  label,
-  to,
-  className,
-}) => {
-  const { back, forward } = useNavLabel();
+export const NavLink: React.FC<NavLinkProps> = ({ direction, label, to, className }) => {
+  const { isRTL } = useTranslation();
+  const isForward = direction === 'forward';
+  const Icon = isForward
+    ? (isRTL ? ArrowLeft : ArrowRight)
+    : (isRTL ? ArrowRight : ArrowLeft);
   return (
-    <Link to={to} className={className}>
-      {direction === 'back' ? back(label) : forward(label)}
+    <Link to={to} className={`flex items-center gap-1.5 ${className ?? ''}`}>
+      {isForward ? <><span>{label}</span><Icon size={16} /></> : <><Icon size={16} /><span>{label}</span></>}
     </Link>
   );
 };
