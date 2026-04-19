@@ -190,24 +190,6 @@ export const SeasonGame: React.FC = () => {
     }
   };
 
-  const togglePlayerAbsent = async (team: 'team1' | 'team2', playerIndex: number) => {
-    if (!game?.team1?.players || !game?.team2?.players) return;
-    const previous = game;
-    const updated: Game = { ...game };
-    if (team === 'team1' && updated.team1?.players?.[playerIndex]) {
-      updated.team1.players[playerIndex].absent = !updated.team1.players[playerIndex].absent;
-    } else if (team === 'team2' && updated.team2?.players?.[playerIndex]) {
-      updated.team2.players[playerIndex].absent = !updated.team2.players[playerIndex].absent;
-    }
-    setGame(updated);
-    try {
-      await gamesApi.update(gameId!, updated);
-    } catch (error) {
-      logger.error('Failed to save absent toggle:', error);
-      setGame(previous);
-    }
-  };
-
   const handleCancel = async () => {
     if (game?.matches) {
       const hasAnyScores = game.matches.some((m: GameMatch) =>
@@ -312,11 +294,9 @@ export const SeasonGame: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">{t('common.round')} {game.round} · {t('common.matchDay')} {game.matchDay}</h1>
-          <p className="text-gray-400 text-sm mt-0.5">{game.team1?.name} vs {game.team2?.name}</p>
-        </div>
+      <div className="mb-4 text-center">
+        <p className="text-gray-400 text-sm mb-1">{t('common.round')} {game.round} · {t('common.matchDay')} {game.matchDay}</p>
+        <h1 className="text-2xl font-bold">{game.team1?.name} {t('common.vs')} {game.team2?.name}</h1>
       </div>
 
       {/* Pending submission banner */}
@@ -345,21 +325,31 @@ export const SeasonGame: React.FC = () => {
           game={game}
           mode="edit"
           onUpdateScore={updateMatchScore}
-          onToggleAbsent={togglePlayerAbsent}
         />
       </div>
 
-      {/* Grand total points */}
-      {game.grandTotalPoints && (game.grandTotalPoints.team1 > 0 || game.grandTotalPoints.team2 > 0) && (
-        <div className="bg-gray-800 rounded-xl p-4 mb-4 text-center">
-          <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">{t('games.grandTotalPoints')}</p>
-          <div className="flex justify-center items-center gap-4 text-lg font-bold">
-            <span className="text-orange-400">{game.team1?.name}: {game.grandTotalPoints.team1}</span>
-            <span className="text-gray-500">·</span>
-            <span className="text-blue-400">{game.team2?.name}: {game.grandTotalPoints.team2}</span>
+      {/* Total points summary */}
+      {(() => {
+        const calcTotal = (teamKey: 'team1' | 'team2') =>
+          (game.matches ?? []).reduce((s, m) => {
+            const playerPts = (m.playerMatches ?? []).reduce((ps, pm) =>
+              ps + (teamKey === 'team1' ? (pm.team1Points ?? 0) : (pm.team2Points ?? 0)), 0);
+            return s + (m[teamKey]?.points ?? 0) + playerPts;
+          }, 0) + (game.grandTotalPoints?.[teamKey] ?? 0);
+        const t1 = calcTotal('team1');
+        const t2 = calcTotal('team2');
+        if (t1 === 0 && t2 === 0) return null;
+        return (
+          <div className="bg-gray-800 rounded-xl p-4 mb-4 text-center">
+            <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">{t('gameHistory.totalPoints')}</p>
+            <div className="flex justify-center items-center gap-4 text-lg font-bold">
+              <span className="text-orange-400">{game.team1?.name}: {t1}</span>
+              <span className="text-gray-500">·</span>
+              <span className="text-blue-400">{game.team2?.name}: {t2}</span>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Validation error */}
       {validationError && (

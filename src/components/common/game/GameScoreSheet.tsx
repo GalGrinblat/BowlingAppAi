@@ -10,7 +10,6 @@ export interface GameScoreSheetProps {
   mode: GameScoreSheetMode;
   // edit mode only
   onUpdateScore?: (matchIndex: number, team: 'team1' | 'team2', playerIndex: number, pins: string) => void;
-  onToggleAbsent?: (team: 'team1' | 'team2', playerIndex: number) => void;
   // print mode fallback: player names when game.team1/team2 not yet populated
   printPlayers?: {
     team1: { id: string; name: string }[];
@@ -58,7 +57,7 @@ const ScoreInputCell: React.FC<ScoreInputCellProps> = ({ value, tabIndex, onComm
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
-  game, mode, onUpdateScore, onToggleAbsent, printPlayers,
+  game, mode, onUpdateScore, printPlayers,
 }) => {
   const { t, direction, isRTL } = useTranslation();
   const matches = useMemo(() => game.matches ?? [], [game.matches]);
@@ -73,23 +72,12 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     team2TotalPins: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.totalPins ?? 0), 0),
     team1TotalWithHC: matches.reduce((s: number, m: GameMatch) => s + (m.team1?.totalWithHandicap ?? 0), 0),
     team2TotalWithHC: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.totalWithHandicap ?? 0), 0),
-    team1MatchPts: matches.reduce((s: number, m: GameMatch) => s + (m.team1?.points ?? 0), 0),
-    team2MatchPts: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.points ?? 0), 0),
-    team1PlayerPts: matches.reduce((s: number, m: GameMatch) =>
-      s + (m.playerMatches ?? []).reduce((ps, pm) => ps + (pm.team1Points ?? 0), 0), 0),
-    team2PlayerPts: matches.reduce((s: number, m: GameMatch) =>
-      s + (m.playerMatches ?? []).reduce((ps, pm) => ps + (pm.team2Points ?? 0), 0), 0),
   }), [matches, game.grandTotalPoints]);
 
   const overallWinner = totals.team1TotalPoints > totals.team2TotalPoints ? 'team1'
     : totals.team2TotalPoints > totals.team1TotalPoints ? 'team2' : 'tie';
 
   const formatPts = (pts: number) => pts % 1 === 0 ? String(pts) : pts.toFixed(1);
-
-  const formatGrandTotal = (matchPts: number, grandPts: number) =>
-    grandPts > 0
-      ? `${formatPts(matchPts)} + ${formatPts(grandPts)} = ${formatPts(matchPts + grandPts)}`
-      : formatPts(matchPts);
 
   // Tab index calculation: column-major order across both teams
   const tabMap = useMemo(() => {
@@ -121,7 +109,6 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     const playerCount = playerNames.length;
 
     const grandPts = isTeam1 ? (game.grandTotalPoints?.team1 ?? 0) : (game.grandTotalPoints?.team2 ?? 0);
-    const matchWinnerPts = isTeam1 ? totals.team1MatchPts : totals.team2MatchPts;
     const teamTotalPts = isTeam1 ? totals.team1TotalPoints : totals.team2TotalPoints;
 
     // Styling tokens
@@ -129,7 +116,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     const accentHeader = isTeam1
       ? 'bg-orange-100 text-orange-800 border-orange-300'
       : 'bg-blue-100 text-blue-800 border-blue-300';
-    const accentSubHeader = isTeam1 ? 'bg-orange-50' : 'bg-blue-50';
+    const accentSubHeader = isTeam1 ? 'bg-orange-50 text-gray-700' : 'bg-blue-50 text-gray-700';
     const accentTotalBg = isTeam1 ? 'bg-orange-200 text-orange-900' : 'bg-blue-200 text-blue-900';
     const accentHcBg = isTeam1 ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600';
     const accentWithHcBg = isTeam1 ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700';
@@ -158,7 +145,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
             <tr className={headerBg}>
               <th
                 colSpan={numCols}
-                className={`px-2 py-1.5 font-bold ${thBorder} ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`px-2 py-1.5 font-bold ${thBorder} text-center`}
               >
                 {!isPrint && `${emoji} `}{team?.name ?? ''}
               </th>
@@ -341,7 +328,12 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   const winIcon = isTeam1
                     ? (t1 > t2 ? '✅' : t1 === t2 ? '⚖️' : '❌')
                     : (t2 > t1 ? '✅' : t2 === t1 ? '⚖️' : '❌');
-                  const matchTeamPts = m[teamKey]?.points ?? 0;
+                  // Team match winner points only (exclude player pts and bonus pts)
+                  const matchAllPts = m[teamKey]?.points ?? 0;
+                  const matchPlayerPts = (m.playerMatches ?? []).reduce((s, pm) =>
+                    s + (isTeam1 ? (pm.team1Points ?? 0) : (pm.team2Points ?? 0)), 0);
+                  const matchBonusPts = m[teamKey]?.bonusPoints ?? 0;
+                  const matchTeamWinnerPts = matchAllPts - matchPlayerPts - matchBonusPts;
                   return (
                     <React.Fragment key={`whc-${mi}`}>
                       <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
@@ -353,7 +345,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                         )}
                       </td>
                       <td className={`px-1 py-1.5 text-center font-bold ${thBorder} ${isPrint ? blankCellH : ''}`}>
-                        {!isPrint && matchTeamPts > 0 ? formatPts(matchTeamPts) : ''}
+                        {!isPrint && matchTeamWinnerPts > 0 ? formatPts(matchTeamWinnerPts) : ''}
                       </td>
                     </React.Fragment>
                   );
@@ -367,7 +359,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   )}
                 </td>
                 <td className={`px-1 py-1.5 text-center font-bold ${thBorder} ${isPrint ? blankCellH : `${accentPtsColor}`}`}>
-                  {!isPrint ? formatGrandTotal(matchWinnerPts, grandPts) : ''}
+                  {!isPrint && grandPts > 0 ? formatPts(grandPts) : ''}
                 </td>
               </tr>
             )}
@@ -378,14 +370,12 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                 {t('gameHistory.totalPoints')}
               </td>
               {matches.map((m, mi) => {
-                const matchPlayerPts = (m.playerMatches ?? []).reduce((s, pm) =>
-                  s + (isTeam1 ? (pm.team1Points ?? 0) : (pm.team2Points ?? 0)), 0);
-                const matchTeamPts = m[teamKey]?.points ?? 0;
+                const matchAllPts = m[teamKey]?.points ?? 0;
                 return (
                   <React.Fragment key={`tpt-${mi}`}>
                     <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
                     <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
-                      {!isPrint ? formatPts(matchPlayerPts + matchTeamPts) : ''}
+                      {!isPrint && matchAllPts > 0 ? formatPts(matchAllPts) : ''}
                     </td>
                   </React.Fragment>
                 );
