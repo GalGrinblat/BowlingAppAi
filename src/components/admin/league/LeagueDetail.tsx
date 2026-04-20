@@ -167,24 +167,26 @@ export const LeagueDetail: React.FC = () => {
         title={displayLeague.name}
         subtitle={displayLeague.description}
         back={{ label: t('leagues.backToLeagues'), onClick: () => navigate('/admin/leagues') }}
-        actions={<>
-          <button onClick={() => navigate(`/admin/leagues/${leagueId}/seasons/new`)} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm whitespace-nowrap">
-            + <span className="hidden sm:inline">{t('seasons.createSeason')}</span><span className="sm:hidden">{t('common.season')}</span>
-          </button>
-          <button onClick={handleExportLeague} className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm whitespace-nowrap" title={t('leagues.exportLeagueDesc')}>
-            📥 <span className="hidden sm:inline">{t('leagues.exportLeague')}</span>
-          </button>
-          <button onClick={handleImportClick} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold text-sm whitespace-nowrap" title={t('leagues.importLeagueDesc')}>
-            📤 <span className="hidden sm:inline">{t('leagues.importLeague')}</span>
-          </button>
-          <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportFile} className="hidden" />
-        </>}
       >
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 mt-3">
-          {displayLeague.dayOfWeek && <span>📅 {t(`days.${displayLeague.dayOfWeek.toLowerCase()}Plural`)}</span>}
-          <span>👥 <span className="ltr-content">{displayLeague.defaultSeasonConfigurations.playersPerTeam}</span> {t('common.playersPerTeam')}</span>
-          <span>🎳 <span className="ltr-content">{displayLeague.defaultSeasonConfigurations.matchesPerGame || 3}</span> {t('leagues.matchesPerGame')}</span>
-          {displayLeague.defaultSeasonConfigurations.useHandicap && <span>⚖️ {t('leagues.handicapDisplay').replace('{{percentage}}', String(displayLeague.defaultSeasonConfigurations.handicapPercentage || 100)).replace('{{basis}}', String(displayLeague.defaultSeasonConfigurations.handicapBasis))}</span>}
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-3">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+            {displayLeague.dayOfWeek && <span>📅 {t(`days.${displayLeague.dayOfWeek.toLowerCase()}Plural`)}</span>}
+            <span>👥 <span className="ltr-content">{displayLeague.defaultSeasonConfigurations.playersPerTeam}</span> {t('common.playersPerTeam')}</span>
+            <span>🎳 <span className="ltr-content">{displayLeague.defaultSeasonConfigurations.matchesPerGame || 3}</span> {t('leagues.matchesPerGame')}</span>
+            {displayLeague.defaultSeasonConfigurations.useHandicap && <span>⚖️ {t('leagues.handicapDisplay').replace('{{percentage}}', String(displayLeague.defaultSeasonConfigurations.handicapPercentage || 100)).replace('{{basis}}', String(displayLeague.defaultSeasonConfigurations.handicapBasis))}</span>}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button onClick={() => navigate(`/admin/leagues/${leagueId}/seasons/new`)} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm whitespace-nowrap">
+              + <span className="hidden sm:inline">{t('seasons.createSeason')}</span><span className="sm:hidden">{t('common.season')}</span>
+            </button>
+            <button onClick={handleExportLeague} className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm whitespace-nowrap" title={t('leagues.exportLeagueDesc')}>
+              📥 <span className="hidden sm:inline">{t('leagues.exportLeague')}</span>
+            </button>
+            <button onClick={handleImportClick} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold text-sm whitespace-nowrap" title={t('leagues.importLeagueDesc')}>
+              📤 <span className="hidden sm:inline">{t('leagues.importLeague')}</span>
+            </button>
+            <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportFile} className="hidden" />
+          </div>
         </div>
       </PageHeader>
 

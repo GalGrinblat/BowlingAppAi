@@ -52,16 +52,11 @@ export const TeamStandingsTable: React.FC<TeamStandingsTableProps> = ({
     const resultWord = r.result === 'W' ? t('seasons.resultWon') : r.result === 'L' ? t('seasons.resultLost') : t('seasons.resultDrew');
     return (
       <div className="text-center">
-        <div className="flex items-center justify-center gap-1.5">
-          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold ${badgeCls}`}>
-            {r.result}
-          </span>
-          <span className="text-xs font-semibold text-gray-700">
-            {r.ownPoints}-{r.opponentPoints}
-          </span>
-        </div>
+        <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold ${badgeCls}`}>
+          {r.result}
+        </span>
         <div className="text-xs text-gray-500 mt-0.5 truncate max-w-[8rem]">
-          {resultWord} {t('seasons.resultVs')} {r.opponentName}
+          {resultWord} {r.ownPoints}-{r.opponentPoints} {t('seasons.resultVs')} {r.opponentName}
         </div>
       </div>
     );

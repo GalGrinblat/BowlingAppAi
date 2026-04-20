@@ -37,32 +37,34 @@ export const SeasonHeader: React.FC<SeasonHeaderProps> = ({
       </>}
       subtitle={league.name}
       back={{ label: t('common.backToLeague'), onClick: onBack }}
-      actions={season.status === 'active' ? (
-        <>
-          {onManageTeams && (
-            <button onClick={onManageTeams} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">
-              👥 {t('seasons.manageTeams')}
-            </button>
-          )}
-          <button onClick={onExportSeason} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold" title={t('seasons.exportSeasonDesc')}>
-            📥 {t('seasons.exportSeason')}
-          </button>
-          <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold" title={t('seasons.importSeasonDesc')}>
-            📤 {t('seasons.importSeason')}
-          </button>
-          <input ref={fileInputRef} type="file" accept=".json" onChange={onImportFile} className="hidden" />
-          {completedGames === totalGames && (
-            <button onClick={onCompleteSeason} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">
-              {t('seasons.completeSeason')}
-            </button>
-          )}
-        </>
-      ) : undefined}
     >
-      <div className="flex gap-4 mt-4 text-sm text-gray-600">
-        <span>🏆 {t('seasons.teamsCount').replace('{{count}}', String(teams.length))}</span>
-        <span>🎳 {t('seasons.gamesComplete').replace('{{completed}}', String(completedGames)).replace('{{total}}', String(totalGames))}</span>
-        <span>🔄 {t('seasons.roundOf').replace('{{current}}', String(selectedRound)).replace('{{total}}', String(season.seasonConfigurations.numberOfRounds))}</span>
+      <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <span>🏆 {t('seasons.teamsCount').replace('{{count}}', String(teams.length))}</span>
+          <span>🎳 {t('seasons.gamesComplete').replace('{{completed}}', String(completedGames)).replace('{{total}}', String(totalGames))}</span>
+          <span>🔄 {t('seasons.roundOf').replace('{{current}}', String(selectedRound)).replace('{{total}}', String(season.seasonConfigurations.numberOfRounds))}</span>
+        </div>
+        {season.status === 'active' && (
+          <div className="flex flex-wrap items-center gap-2">
+            {onManageTeams && (
+              <button onClick={onManageTeams} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold text-sm whitespace-nowrap">
+                👥 {t('seasons.manageTeams')}
+              </button>
+            )}
+            <button onClick={onExportSeason} className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm whitespace-nowrap" title={t('seasons.exportSeasonDesc')}>
+              📥 {t('seasons.exportSeason')}
+            </button>
+            <button onClick={() => fileInputRef.current?.click()} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold text-sm whitespace-nowrap" title={t('seasons.importSeasonDesc')}>
+              📤 {t('seasons.importSeason')}
+            </button>
+            <input ref={fileInputRef} type="file" accept=".json" onChange={onImportFile} className="hidden" />
+            {completedGames === totalGames && (
+              <button onClick={onCompleteSeason} className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm whitespace-nowrap">
+                {t('seasons.completeSeason')}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </PageHeader>
   );

@@ -10,7 +10,7 @@ interface H2HRecordProps {
 }
 
 export const H2HRecord: React.FC<H2HRecordProps> = ({ h2h, team1Name, team2Name, variant }) => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const isTeam1Winning = h2h.team1Wins > h2h.team2Wins;
   const isTeam2Winning = h2h.team2Wins > h2h.team1Wins;
@@ -32,13 +32,15 @@ export const H2HRecord: React.FC<H2HRecordProps> = ({ h2h, team1Name, team2Name,
 
   if (variant === 'compact') {
     return (
-      <div dir="ltr" className="flex items-center gap-1.5 text-sm flex-wrap">
+      <div className="flex items-center gap-1.5 text-sm flex-wrap">
         <span className="text-gray-500 font-medium">📊 {t('games.seriesRecord')}</span>
-        <span className="font-semibold text-gray-800">{team1Name}</span>
-        <span className={`font-bold text-base ${team1ScoreColor}`}>{h2h.team1Wins}</span>
-        <span className="text-gray-400">—</span>
-        <span className={`font-bold text-base ${team2ScoreColor}`}>{h2h.team2Wins}</span>
-        <span className="font-semibold text-gray-800">{team2Name}</span>
+        <div dir="ltr" className="inline-flex items-center gap-1">
+          <span className="font-semibold text-gray-800">{team1Name}</span>
+          <span className={`font-bold text-base ${team1ScoreColor}`}>{h2h.team1Wins}</span>
+          <span className="text-gray-400">—</span>
+          <span className={`font-bold text-base ${team2ScoreColor}`}>{h2h.team2Wins}</span>
+          <span className="font-semibold text-gray-800">{team2Name}</span>
+        </div>
         {h2h.ties > 0 && (
           <span className="text-xs text-gray-500">· {h2h.ties} {t('common.draws').toLowerCase()}</span>
         )}
@@ -58,20 +60,26 @@ export const H2HRecord: React.FC<H2HRecordProps> = ({ h2h, team1Name, team2Name,
   }
 
   // variant === 'full'
+  // RTL reverses flex order (team1 → right) and swaps score display so numbers stay adjacent to their team.
+  const leftWins = isRTL ? h2h.team2Wins : h2h.team1Wins;
+  const rightWins = isRTL ? h2h.team1Wins : h2h.team2Wins;
+  const leftColor = isRTL ? team2ScoreColor : team1ScoreColor;
+  const rightColor = isRTL ? team1ScoreColor : team2ScoreColor;
+
   return (
-    <div dir="ltr">
+    <div>
       <div className="flex items-center justify-between">
-        <div className="flex-1 text-left">
+        <div className="flex-1 text-start">
           <div className="font-semibold text-gray-800">{team1Name}</div>
           <div className="text-xs text-gray-500 mt-0.5">
             {t('common.average')}: {h2h.team1AvgPoints.toFixed(1)} {t('common.pts')}
           </div>
         </div>
         <div className="mx-4 text-center">
-          <div className="flex items-center gap-1">
-            <span className={`text-2xl font-bold ${team1ScoreColor}`}>{h2h.team1Wins}</span>
+          <div dir="ltr" className="inline-flex items-center gap-1">
+            <span className={`text-2xl font-bold ${leftColor}`}>{leftWins}</span>
             <span className="text-xl text-gray-400 font-light">—</span>
-            <span className={`text-2xl font-bold ${team2ScoreColor}`}>{h2h.team2Wins}</span>
+            <span className={`text-2xl font-bold ${rightColor}`}>{rightWins}</span>
           </div>
           {h2h.ties > 0 && (
             <div className="text-xs text-gray-500 mt-0.5">
@@ -79,7 +87,7 @@ export const H2HRecord: React.FC<H2HRecordProps> = ({ h2h, team1Name, team2Name,
             </div>
           )}
         </div>
-        <div className="flex-1 text-right">
+        <div className="flex-1 text-end">
           <div className="font-semibold text-gray-800">{team2Name}</div>
           <div className="text-xs text-gray-500 mt-0.5">
             {t('common.average')}: {h2h.team2AvgPoints.toFixed(1)} {t('common.pts')}
