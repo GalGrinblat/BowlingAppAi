@@ -3,6 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { calculateHeadToHead } from '../../../utils/headToHeadUtils';
+import { H2HRecord } from '../../common/H2HRecord';
 import { PlayerRosterTable } from './PlayerRosterTable';
 import { GameScoreSheet } from '../../common/game/GameScoreSheet';
 import { SignatureBlock } from './SignatureBlock';
@@ -105,9 +106,7 @@ export const MatchDayReport: React.FC<MatchDayReportProps> = ({
                 <div className="col-span-1 text-center">
                   <div className="text-5xl font-bold text-gray-400">{t('common.vs')}</div>
                   {h2h.gamesPlayed > 0 && (
-                    <div className="mt-2 text-xs text-gray-600">
-                      {t('seasons.headToHead')}: {h2h.team1Wins}-{h2h.team2Wins}
-                    </div>
+                    <H2HRecord h2h={h2h} team1Name={team1.name} team2Name={team2.name} variant="print" />
                   )}
                 </div>
                 <div className="col-span-2">

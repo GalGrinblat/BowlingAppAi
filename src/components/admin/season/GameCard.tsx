@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { formatHeadToHead } from '../../../utils/headToHeadUtils';
+import { H2HRecord } from '../../common/H2HRecord';
 import type { HeadToHeadStats } from '../../../utils/headToHeadUtils';
 import type { Game, GameMatch, Team } from '../../../types/index';
 
@@ -43,10 +43,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, team1, team2, h2h, onP
       {/* Head-to-Head Record */}
       {h2h && h2h.gamesPlayed > 0 && (
         <div className="mb-3 pb-3 border-b border-gray-300">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="font-semibold">📊 {t('games.seriesRecord')}:</span>
-            <span>{formatHeadToHead(h2h, team1?.name ?? '', team2?.name ?? '')}</span>
-          </div>
+          <H2HRecord h2h={h2h} team1Name={team1?.name ?? ''} team2Name={team2?.name ?? ''} variant="compact" />
         </div>
       )}
 

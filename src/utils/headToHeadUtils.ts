@@ -169,25 +169,3 @@ export const getTeamHeadToHeadRecords = (teamId: string, allTeams: Team[], games
   }).filter(record => record.record.gamesPlayed > 0);
 };
 
-/**
- * Format head-to-head record as string
- * @param {object} h2h - Head-to-head stats
- * @param {string} team1Name - First team name
- * @param {string} team2Name - Second team name
- * @returns {string} Formatted string
- */
-export const formatHeadToHead = (h2h: HeadToHeadStats, team1Name: string, team2Name: string): string => {
-  if (h2h.gamesPlayed === 0) {
-    return 'No previous matchups';
-  }
-
-  const parts = [];
-  parts.push(`${team1Name} ${h2h.team1Wins}-${h2h.team2Wins}${h2h.ties > 0 ? `-${h2h.ties}` : ''} vs ${team2Name}`);
-  
-  if (h2h.winStreak && h2h.winStreak.count >= 2) {
-    const streakTeamName = h2h.winStreak.team === 'team1' ? team1Name : team2Name;
-    parts.push(`${streakTeamName} on ${h2h.winStreak.count}-game win streak`);
-  }
-
-  return parts.join(' • ');
-};

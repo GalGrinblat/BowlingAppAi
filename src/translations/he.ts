@@ -376,6 +376,7 @@ const he: TranslationDictionary = {
     headToHeadRecords: 'רשומות התמודדות ישירות',
     headToHeadDesc: 'כל רשומות ההתמודדויות בין קבוצות עבור עונה זו',
     noMatchupsYet: 'עדיין לא היו התמודדויות',
+    gameStreak: 'משחקי ניצחון ברצף',
     lastResult: 'תוצאה אחרונה',
     lastMD: 'מחזור אחרון',
     participation: 'השתתפות%',

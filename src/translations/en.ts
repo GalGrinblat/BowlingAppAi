@@ -376,6 +376,7 @@ const en: TranslationDictionary = {
     headToHeadRecords: 'Head-to-Head Records',
     headToHeadDesc: 'All team matchup records for this season',
     noMatchupsYet: 'No matchups yet',
+    gameStreak: 'game win streak',
     lastResult: 'Last Result',
     lastMD: 'Last MD',
     participation: 'Part.%',
