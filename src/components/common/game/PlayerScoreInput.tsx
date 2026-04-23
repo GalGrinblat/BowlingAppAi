@@ -3,6 +3,28 @@ import { Star } from '../Icons';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { GamePlayer, MatchPlayer } from '../../../types';
 
+// ─── Local sub-components ────────────────────────────────────────────────────
+
+const BonusIndicator: React.FC<{ bonusPoints: number; reversed?: boolean }> = ({ bonusPoints, reversed }) => (
+  <div className="flex items-center gap-1 text-yellow-400 flex-shrink-0 w-12">
+    {bonusPoints > 0 && (
+      reversed ? (
+        <>
+          <span className="text-xs font-bold">+{bonusPoints}</span>
+          <Star size={12} fill="currentColor" />
+        </>
+      ) : (
+        <>
+          <Star size={12} fill="currentColor" />
+          <span className="text-xs font-bold">+{bonusPoints}</span>
+        </>
+      )
+    )}
+  </div>
+);
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export interface PlayerScoreInputProps {
   player: GamePlayer;
   matchPlayer: MatchPlayer;
@@ -30,13 +52,13 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
 }) => {
   const { t } = useTranslation();
   const isRightAligned = alignment === 'right';
-  
+
   // Color configurations
   const bgColor = teamColor === 'orange' ? 'bg-orange-600' : 'bg-blue-600';
   const textColor = teamColor === 'orange' ? 'text-orange-400' : 'text-blue-400';
   const focusBorder = teamColor === 'orange' ? 'focus:border-orange-500' : 'focus:border-blue-500';
   const focusRing = teamColor === 'orange' ? 'focus:ring-orange-500' : 'focus:ring-blue-500';
-  
+
   // Calculate values
   const absentScore = parseInt(String(player.average)) - 10;
   const scoreWithHandicap = player.absent
@@ -70,16 +92,7 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
     <div className="flex items-center gap-2 flex-shrink-0">
       {player.absent ? (
         <>
-          {isRightAligned && (
-            <div className="flex items-center gap-1 text-yellow-400 flex-shrink-0 w-12">
-              {matchPlayer.bonusPoints > 0 && (
-                <>
-                  <span className="text-xs font-bold">+{matchPlayer.bonusPoints}</span>
-                  <Star size={12} fill="currentColor" />
-                </>
-              )}
-            </div>
-          )}
+          {isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} reversed />}
           <div className="text-center">
             <span className="text-gray-400 text-sm block">{t('games.withHdc')}</span>
             <div className={`w-16 px-2 py-1 ${textColor} font-bold text-sm text-center`}>
@@ -92,29 +105,11 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
               {absentScore}
             </div>
           </div>
-          {!isRightAligned && (
-            <div className="flex items-center gap-1 text-yellow-400 flex-shrink-0 w-12">
-              {matchPlayer.bonusPoints > 0 && (
-                <>
-                  <Star size={12} fill="currentColor" />
-                  <span className="text-xs font-bold">+{matchPlayer.bonusPoints}</span>
-                </>
-              )}
-            </div>
-          )}
+          {!isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} />}
         </>
       ) : (
         <>
-          {isRightAligned && (
-            <div className="flex items-center gap-1 text-yellow-400 flex-shrink-0 w-12">
-              {matchPlayer.bonusPoints > 0 && (
-                <>
-                  <span className="text-xs font-bold">+{matchPlayer.bonusPoints}</span>
-                  <Star size={12} fill="currentColor" />
-                </>
-              )}
-            </div>
-          )}
+          {isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} reversed />}
           <div className="text-center">
             <span className="text-gray-400 text-sm block">{t('games.withHdc')}</span>
             <div className={`w-16 px-2 py-1 ${textColor} font-bold text-sm text-center`}>
@@ -131,6 +126,7 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
               value={matchPlayer.pins}
               onChange={(e) => onUpdateScore(matchIdx, teamKey, playerIdx, e.target.value)}
               onKeyDown={(e) => ['-', '+', 'e', 'E'].includes(e.key) && e.preventDefault()}
+              onFocus={(e) => e.target.select()}
               placeholder="0-300"
               min="0"
               max="300"
@@ -142,16 +138,7 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
               }`}
             />
           </div>
-          {!isRightAligned && (
-            <div className="flex items-center gap-1 text-yellow-400 flex-shrink-0 w-12">
-              {matchPlayer.bonusPoints > 0 && (
-                <>
-                  <Star size={12} fill="currentColor" />
-                  <span className="text-xs font-bold">+{matchPlayer.bonusPoints}</span>
-                </>
-              )}
-            </div>
-          )}
+          {!isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} />}
         </>
       )}
     </div>

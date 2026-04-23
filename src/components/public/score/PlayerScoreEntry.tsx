@@ -113,7 +113,7 @@ const SubmittedScreen: React.FC<{ gameId: string; t: (k: string) => string }> = 
       <p className="text-gray-400 mb-8 max-w-sm">{t('score.submittedDesc')}</p>
       <button
         onClick={handleCopy}
-        className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+        className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg text-sm transition-colors"
       >
         {copied ? t('score.linkCopied') : t('score.shareLink')}
       </button>
@@ -375,8 +375,10 @@ export const PlayerScoreEntry: React.FC = () => {
       {/* Header */}
       <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
         <div className="text-lg font-bold text-white">🎳 {t('score.title')}</div>
-        <div className="text-sm text-gray-400">
-          {game.team1?.name} vs {game.team2?.name}
+        <div className="text-sm text-gray-400 flex items-center gap-1 min-w-0">
+          <span className="truncate max-w-[120px]">{game.team1?.name}</span>
+          <span className="shrink-0">vs</span>
+          <span className="truncate max-w-[120px]">{game.team2?.name}</span>
         </div>
       </div>
 

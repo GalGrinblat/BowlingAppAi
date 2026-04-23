@@ -36,7 +36,7 @@ export const GameSummaryView: React.FC<GameSummaryViewProps> = ({ game, totals, 
       </div>
 
       {/* Full Score Table */}
-      <div className="bg-white rounded-lg mb-6 overflow-hidden">
+      <div className="bg-white rounded-lg mb-6 overflow-x-auto">
         <GameScoreSheet game={game} mode="readonly" />
       </div>
 
