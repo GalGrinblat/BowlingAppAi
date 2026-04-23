@@ -207,7 +207,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                         <span className="ml-1 text-[10px] font-normal text-red-400 italic">({t('games.absent')})</span>
                       )}
                     </div>
-                    {isEdit && player && !isAbsent && (
+                    {isEdit && player && (
                       <div className="text-[10px] text-gray-400 font-normal mt-0.5">
                         {t('games.avg')}: {player.average.toFixed(0)}
                         {game.useHandicap && ` · ${t('games.hc')}: ${player.handicap}`}
@@ -221,6 +221,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     const pm = match.playerMatches?.[playerIdx];
                     const result = pm?.result;
                     const matchPts = isTeam1 ? (pm?.team1Points ?? 0) : (pm?.team2Points ?? 0);
+                    const bonusPoints = !isAbsent ? (matchPlayer?.bonusPoints ?? 0) : 0;
                     const pinsVal = isAbsent
                       ? String(absentScore)
                       : (matchPlayer?.pins ?? '');
@@ -253,6 +254,9 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                           )}
                           {!isPrint && resultIcon && (
                             <div className="text-[10px] leading-none mt-0.5">{resultIcon}</div>
+                          )}
+                          {!isPrint && bonusPoints > 0 && (
+                            <div className="text-[10px] leading-none mt-0.5 text-amber-500 font-bold">⭐+{bonusPoints}</div>
                           )}
                         </td>
                         {/* Points cell */}

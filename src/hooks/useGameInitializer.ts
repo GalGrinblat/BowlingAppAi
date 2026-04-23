@@ -44,7 +44,9 @@ export function useGameInitializer(gameId: string): GameInitResult & {
       const gameData = await gamesApi.getById(gameId);
       if (cancelled || !gameData) return;
 
-      await fetchAndAssignTeams(gameData);
+      if (!gameData.team1 || !gameData.team2) {
+        await fetchAndAssignTeams(gameData);
+      }
 
       // Initialize matches if empty
       if (!gameData.matches || gameData.matches.length === 0) {
