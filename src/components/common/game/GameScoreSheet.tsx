@@ -141,6 +141,8 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     // Blank cell height for print mode
     const blankCellH = isPrint ? 'py-5' : 'py-1.5';
 
+    const sepClass = (mi: number) => !isPrint && mi > 0 ? 'border-l-2 border-l-gray-400' : '';
+
     return (
       <div className="overflow-x-auto">
         <table className={`w-full text-sm ${tableBorder}`}>
@@ -159,8 +161,8 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
               <th rowSpan={2} className={`px-2 py-1.5 text-xs font-bold align-bottom ${thBorder} ${isRTL ? 'text-right' : 'text-left'}`}>
                 {t('common.player')}
               </th>
-              {matches.map((m) => (
-                <th key={`grp-${m.matchNumber}`} colSpan={2} className={`px-1 py-1 text-center text-xs font-bold ${thBorder}`}>
+              {matches.map((m, mi) => (
+                <th key={`grp-${m.matchNumber}`} colSpan={2} className={`px-1 py-1 text-center text-xs font-bold ${thBorder} ${sepClass(mi)}`}>
                   {t('common.match')} {m.matchNumber}
                 </th>
               ))}
@@ -170,9 +172,9 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
             </tr>
             {/* Score / Pts sub-headers */}
             <tr className={subHeaderBg}>
-              {matches.map((m) => (
+              {matches.map((m, mi) => (
                 <React.Fragment key={`sub-${m.matchNumber}`}>
-                  <th className={`px-1 py-1 text-center text-xs font-semibold ${thBorder}`}>{t('common.score')}</th>
+                  <th className={`px-1 py-1 text-center text-xs font-semibold ${thBorder} ${sepClass(mi)}`}>{t('common.score')}</th>
                   <th className={`px-1 py-1 text-center text-xs font-semibold ${thBorder}`}>{t('common.pts')}</th>
                 </React.Fragment>
               ))}
@@ -196,6 +198,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                 const pm = m.playerMatches?.[playerIdx];
                 return s + (isTeam1 ? (pm?.team1Points ?? 0) : (pm?.team2Points ?? 0));
               }, 0);
+              const hasAnyResult = matches.some(m => m.playerMatches?.[playerIdx]?.result != null);
 
               return (
                 <tr key={playerIdx} className={`${tdBorder} ${!isPrint ? hoverBg : ''}`}>
@@ -237,7 +240,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     return (
                       <React.Fragment key={`m${mi}`}>
                         {/* Score cell */}
-                        <td className={`px-1 text-center ${thBorder} ${blankCellH}`}>
+                        <td className={`px-1 text-center ${thBorder} ${sepClass(mi)} ${blankCellH}`}>
                           {isAbsent ? (
                             <span className="text-xs text-gray-400 italic">({absentScore})</span>
                           ) : isEdit ? (
@@ -275,7 +278,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   </td>
                   {/* Total pts */}
                   <td className={`px-1 py-1.5 text-center text-xs font-bold ${thBorder} ${isPrint ? 'bg-gray-100' : `bg-gray-50 ${accentPtsColor}`}`}>
-                    {!isPrint && playerTotalPts > 0 ? formatPts(playerTotalPts) : ''}
+                    {!isPrint && hasAnyResult ? formatPts(playerTotalPts) : ''}
                   </td>
                 </tr>
               );
@@ -288,7 +291,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
               </td>
               {matches.map((m, mi) => (
                 <React.Fragment key={`scratch-${mi}`}>
-                  <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
+                  <td className={`px-1 py-1.5 text-center ${thBorder} ${sepClass(mi)} ${isPrint ? blankCellH : ''}`}>
                     {!isPrint ? (m[teamKey]?.totalPins ?? 0) : ''}
                   </td>
                   <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
@@ -310,7 +313,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   const hdc = (m[teamKey]?.totalWithHandicap ?? 0) - (m[teamKey]?.totalPins ?? 0);
                   return (
                     <React.Fragment key={`hdc-${mi}`}>
-                      <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
+                      <td className={`px-1 py-1.5 text-center ${thBorder} ${sepClass(mi)} ${isPrint ? blankCellH : ''}`}>
                         {!isPrint ? hdc : ''}
                       </td>
                       <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
@@ -344,7 +347,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   const matchTeamWinnerPts = matchAllPts - matchPlayerPts - matchBonusPts;
                   return (
                     <React.Fragment key={`whc-${mi}`}>
-                      <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
+                      <td className={`px-1 py-1.5 text-center ${thBorder} ${sepClass(mi)} ${isPrint ? blankCellH : ''}`}>
                         {!isPrint && (
                           <>
                             <div>{isTeam1 ? t1 : t2}</div>
@@ -381,7 +384,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                 const matchAllPts = m[teamKey]?.points ?? 0;
                 return (
                   <React.Fragment key={`tpt-${mi}`}>
-                    <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
+                    <td className={`${thBorder} ${sepClass(mi)} ${isPrint ? blankCellH : ''}`} />
                     <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
                       {!isPrint ? formatPts(matchAllPts) : ''}
                     </td>
