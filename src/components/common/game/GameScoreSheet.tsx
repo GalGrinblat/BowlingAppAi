@@ -73,9 +73,15 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
   game, mode, onUpdateScore, printPlayers,
 }) => {
   const { t, direction, isRTL } = useTranslation();
-  const matches = useMemo(() => game.matches ?? [], [game.matches]);
   const isPrint = mode === 'print';
   const isEdit = mode === 'edit';
+  const rawMatches = useMemo(() => game.matches ?? [], [game.matches]);
+  // In print mode with no matches yet (pending game), generate placeholder stubs for layout
+  const matches = useMemo(() => {
+    if (rawMatches.length > 0 || !isPrint) return rawMatches;
+    const count = game.matchesPerGame ?? 3;
+    return Array.from({ length: count }, (_, i) => ({ matchNumber: i + 1 } as GameMatch));
+  }, [rawMatches, isPrint, game.matchesPerGame]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // All-present bonus computed dynamically (never stored) so it works for old saved games too
   const team1PresentBonus = getAllPresentBonus(game, 'team1');
