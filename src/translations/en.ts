@@ -597,7 +597,6 @@ const en: TranslationDictionary = {
     teamTotal: 'Team Scratch',
     totalPoints: 'Total Points',
     gameScore: 'Game Score',
-    allPresentBonus: 'Full Team Bonus',
     championBanner: 'Game Winner',
   },
 

@@ -597,7 +597,6 @@ const he: TranslationDictionary = {
     teamTotal: 'תוצאת ביניים',
     totalPoints: 'סה"כ נקודות',
     gameScore: 'ניקוד משחק',
-    allPresentBonus: 'בונוס נוכחות מלאה',
     championBanner: 'מנצח המשחק',
   },
 

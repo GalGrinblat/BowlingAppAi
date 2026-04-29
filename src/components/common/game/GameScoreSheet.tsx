@@ -81,7 +81,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     if (rawMatches.length > 0 || !isPrint) return rawMatches;
     const count = game.matchesPerGame ?? 3;
     return Array.from({ length: count }, (_, i) => ({ matchNumber: i + 1 } as GameMatch));
-  }, [rawMatches, isPrint, game.matchesPerGame]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [rawMatches, isPrint, game.matchesPerGame]);  
 
   // All-present bonus computed dynamically (never stored) so it works for old saved games too
   const team1PresentBonus = getAllPresentBonus(game, 'team1');
@@ -212,7 +212,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
             {Array.from({ length: playerCount }, (_, playerIdx) => {
               const player = gamePlayers[playerIdx];
               const isAbsent = player?.absent ?? false;
-              const absentScore = player ? Math.round(player.average) - ABSENT_PLAYER_PENALTY : 0;
+              const absentScore = player ? Math.max(0, Math.round(player.average) - ABSENT_PLAYER_PENALTY) : 0;
               const playerTotalPins = isAbsent
                 ? absentScore * matches.length
                 : matches.reduce((s, m) => {

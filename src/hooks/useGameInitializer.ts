@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { gamesApi } from '../services/api';
-import { createEmptyMatch } from '../utils/matchUtils';
+import { createEmptyMatch, calculateMatchResults } from '../utils/matchUtils';
+import { calculateGrandTotalPoints } from '../utils/statsUtils';
 import { buildGameTeamsFromIds } from '../utils/gameInitUtils';
 import { recalculatePlayerAveragesAndHandicaps } from './usePlayerAverages';
 import type { Game, GameMatch, MatchPlayer, GamePlayer } from '../types/index';
@@ -57,6 +58,10 @@ export function useGameInitializer(gameId: string): GameInitResult & {
       }
 
       await recalculatePlayerAveragesAndHandicaps(gameData);
+      if (gameData.matches?.length) {
+        for (let i = 0; i < gameData.matches.length; i++) calculateMatchResults(gameData, i);
+        gameData.grandTotalPoints = calculateGrandTotalPoints(gameData);
+      }
       await gamesApi.update(gameId, gameData);
       if (cancelled) return;
       setGame(gameData);

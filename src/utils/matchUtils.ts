@@ -90,7 +90,7 @@ const calculateTeamTotals = (
   
   gamePlayers.forEach((player, idx) => {
     if (!player || !matchPlayers[idx]) return;
-    const score = player.absent ? Math.round(player.average) - ABSENT_PLAYER_PENALTY : clampScore(Number(matchPlayers[idx].pins) || 0);
+    const score = player.absent ? Math.max(0, Math.round(player.average) - ABSENT_PLAYER_PENALTY) : clampScore(Number(matchPlayers[idx].pins) || 0);
     totalPins += score;
     totalWithHandicap += score + player.handicap;
   });
@@ -122,8 +122,8 @@ export const calculateMatchResults = (game: Game, matchIndex: number): void => {
     }
     
     // If player is absent, use average minus penalty; otherwise use entered pins (or 0)
-    const team1PlayerScore = team1Player.absent ? Math.round(team1Player.average) - ABSENT_PLAYER_PENALTY : clampScore(Number(match.team1.players[idx]?.pins) || 0);
-    const team2PlayerScore = team2Player.absent ? Math.round(team2Player.average) - ABSENT_PLAYER_PENALTY : clampScore(Number(match.team2.players[idx]?.pins) || 0);
+    const team1PlayerScore = team1Player.absent ? Math.max(0, Math.round(team1Player.average) - ABSENT_PLAYER_PENALTY) : clampScore(Number(match.team1.players[idx]?.pins) || 0);
+    const team2PlayerScore = team2Player.absent ? Math.max(0, Math.round(team2Player.average) - ABSENT_PLAYER_PENALTY) : clampScore(Number(match.team2.players[idx]?.pins) || 0);
     
     const team1PlayerScoreWithHandicap = team1PlayerScore + team1Player.handicap;
     const team2PlayerScoreWithHandicap = team2PlayerScore + team2Player.handicap;

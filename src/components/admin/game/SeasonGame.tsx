@@ -57,7 +57,7 @@ export const SeasonGame: React.FC = () => {
           ...m.team1,
           players: m.team1.players.map((p, pi) => {
             const raw = ms.team1Pins[pi];
-            const pins = raw == null ? '' : String(raw);
+            const pins = raw == null ? '' : String(clampScore(raw));
             const player = updatedTeam1Players[pi];
             return {
               ...p, pins,
@@ -71,7 +71,7 @@ export const SeasonGame: React.FC = () => {
           ...m.team2,
           players: m.team2.players.map((p, pi) => {
             const raw = ms.team2Pins[pi];
-            const pins = raw == null ? '' : String(raw);
+            const pins = raw == null ? '' : String(clampScore(raw));
             const player = updatedTeam2Players[pi];
             return {
               ...p, pins,
@@ -239,6 +239,8 @@ export const SeasonGame: React.FC = () => {
       team1: game.team1,
       team2: game.team2,
     };
+    for (let i = 0; i < (updated.matches?.length ?? 0); i++) calculateMatchResults(updated, i);
+    updated.grandTotalPoints = calculateGrandTotalPoints(updated);
     await gamesApi.update(gameId!, updated);
     await gamesApi.clearPending(gameId!);
     navigate(-1);
