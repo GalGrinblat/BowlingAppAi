@@ -35,7 +35,7 @@ export async function recalculatePlayerAveragesAndHandicaps(gameData: Game) {
       let handicap = 0;
       if (useHandicap && playerAvg > 0 && playerAvg < handicapBasis) {
         const diff = handicapBasis - playerAvg;
-        handicap = Math.ceil(diff * (handicapPercentage / 100));
+        handicap = Math.floor(diff * (handicapPercentage / 100));
       }
       return { ...player, average: playerAvg, handicap };
     });

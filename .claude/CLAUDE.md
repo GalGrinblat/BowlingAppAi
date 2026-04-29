@@ -80,7 +80,7 @@ Organization
 ## Critical Business Logic
 
 ### Handicap
-- Formula: `Math.round((basis - average) * (percentage / 100))`
+- Formula: `Math.floor((basis - average) * (percentage / 100))`
 - Dynamic: recalculates before each game using completed season averages
 - Config per league: `useHandicap`, `handicapBasis` (default 160), `handicapPercentage` (default 100%)
 - Key files: [SeasonGame](src/components/admin/game/SeasonGame.tsx), [standingsUtils](src/utils/standingsUtils.ts)

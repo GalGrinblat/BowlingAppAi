@@ -148,19 +148,34 @@ export const calculateGrandTotalPoints = (game: Game): { team1: number; team2: n
     return team1Complete && team2Complete;
   }) || false;
 
+  // All-present bonus (per game, awarded once regardless of match count)
+  const presentBonus = (game.teamAllPresentBonusEnabled && game.teamAllPresentBonusPoints) ? game.teamAllPresentBonusPoints : 0;
+  const team1AllPresent = presentBonus > 0 && game.team1.players.every((p: GamePlayer) => !p.absent);
+  const team2AllPresent = presentBonus > 0 && game.team2.players.every((p: GamePlayer) => !p.absent);
+
   if (allMatchesComplete) {
     // Calculate total pins with handicap across all matches
     const team1GrandTotal = game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team1.totalWithHandicap, 0) || 0;
     const team2GrandTotal = game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team2.totalWithHandicap, 0) || 0;
 
+    let winPts1 = 0, winPts2 = 0;
     if (team1GrandTotal > team2GrandTotal) {
-      return { team1: teamGamePointsPerWin, team2: 0 };
+      winPts1 = teamGamePointsPerWin;
     } else if (team2GrandTotal > team1GrandTotal) {
-      return { team1: 0, team2: teamGamePointsPerWin };
+      winPts2 = teamGamePointsPerWin;
     } else {
-      return { team1: teamGamePointsPerWin / 2, team2: teamGamePointsPerWin / 2 };
+      winPts1 = teamGamePointsPerWin / 2;
+      winPts2 = teamGamePointsPerWin / 2;
     }
+
+    return {
+      team1: winPts1 + (team1AllPresent ? presentBonus : 0),
+      team2: winPts2 + (team2AllPresent ? presentBonus : 0),
+    };
   } else {
-    return { team1: 0, team2: 0 };
+    return {
+      team1: team1AllPresent ? presentBonus : 0,
+      team2: team2AllPresent ? presentBonus : 0,
+    };
   }
 };
