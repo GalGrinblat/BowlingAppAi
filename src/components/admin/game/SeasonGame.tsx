@@ -315,9 +315,12 @@ export const SeasonGame: React.FC = () => {
 
       {/* Total points summary */}
       {(() => {
-        const calcTotal = (teamKey: 'team1' | 'team2') =>
-          (game.matches ?? []).reduce((s, m) => s + (m[teamKey]?.points ?? 0), 0)
-          + (game.grandTotalPoints?.[teamKey] ?? 0);
+        const calcTotal = (teamKey: 'team1' | 'team2') => {
+          const allPresentBonus = (game.teamAllPresentBonusEnabled && game.teamAllPresentBonusPoints &&
+            game[teamKey]?.players.every(p => !p.absent)) ? game.teamAllPresentBonusPoints : 0;
+          return (game.matches ?? []).reduce((s, m) => s + (m[teamKey]?.points ?? 0), 0)
+            + (game.grandTotalPoints?.[teamKey] ?? 0) + allPresentBonus;
+        };
         const t1 = calcTotal('team1');
         const t2 = calcTotal('team2');
         if (t1 === 0 && t2 === 0) return null;

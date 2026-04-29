@@ -3,6 +3,7 @@ import {
   createEmptyMatch,
   calculateBonusPoints,
   calculateMatchResults,
+  calcGamePoints,
   validateMatch,
 } from '../../../src/utils/matchUtils';
 import type { Game, BonusRule } from '../../../src/types/index';
@@ -310,5 +311,79 @@ describe('calculateMatchResults', () => {
     // team1 player wins (1 pt) + match winner (2 pts) = 3
     expect(game.matches![0]!.team1.points).toBe(3);
     expect(game.matches![0]!.team2.points).toBe(0);
+  });
+
+  it('skips player result when player is undefined (extra player in match)', () => {
+    const game = makeGame();
+    // Add a second playerMatch slot but only one player per team → player at idx 1 is undefined
+    game.matches![0]!.playerMatches.push({ player: 2, result: null, team1Points: 0, team2Points: 0 });
+    calculateMatchResults(game, 0);
+    const pm = game.matches![0]!.playerMatches[1]!;
+    expect(pm.result).toBeNull();
+    expect(pm.team1Points).toBe(0);
+    expect(pm.team2Points).toBe(0);
+  });
+});
+
+// ── calcGamePoints ───────────────────────────────────────────────────────────
+
+describe('calcGamePoints', () => {
+  it('returns team1 winner when team1 has more points', () => {
+    const game = makeGame({ grandTotalPoints: { team1: 2, team2: 0 } });
+    game.matches![0]!.team1.points = 3;
+    game.matches![0]!.team2.points = 1;
+    const result = calcGamePoints(game);
+    expect(result.team1).toBe(5);
+    expect(result.team2).toBe(1);
+    expect(result.winner).toBe('team1');
+  });
+
+  it('returns team2 winner when team2 has more points', () => {
+    const game = makeGame({ grandTotalPoints: { team1: 0, team2: 2 } });
+    game.matches![0]!.team1.points = 1;
+    game.matches![0]!.team2.points = 3;
+    const result = calcGamePoints(game);
+    expect(result.winner).toBe('team2');
+  });
+
+  it('returns tie when both teams have equal points', () => {
+    const game = makeGame({ grandTotalPoints: { team1: 1, team2: 1 } });
+    game.matches![0]!.team1.points = 2;
+    game.matches![0]!.team2.points = 2;
+    const result = calcGamePoints(game);
+    expect(result.winner).toBe('tie');
+  });
+
+  it('includes all-present bonus when enabled and all players present', () => {
+    const game = makeGame({
+      teamAllPresentBonusEnabled: true,
+      teamAllPresentBonusPoints: 1,
+      grandTotalPoints: { team1: 2, team2: 0 },
+    });
+    game.matches![0]!.team1.points = 3;
+    game.matches![0]!.team2.points = 1;
+    // both teams have no absent players → both get bonus
+    const result = calcGamePoints(game);
+    expect(result.team1).toBe(6); // 3 match + 2 grand + 1 bonus
+    expect(result.team2).toBe(2); // 1 match + 0 grand + 1 bonus
+  });
+
+  it('does not include bonus when disabled', () => {
+    const game = makeGame({
+      teamAllPresentBonusEnabled: false,
+      teamAllPresentBonusPoints: 1,
+      grandTotalPoints: { team1: 2, team2: 0 },
+    });
+    game.matches![0]!.team1.points = 3;
+    const result = calcGamePoints(game);
+    expect(result.team1).toBe(5); // no bonus
+  });
+
+  it('handles no matches gracefully', () => {
+    const game = makeGame({ matches: [], grandTotalPoints: { team1: 0, team2: 0 } });
+    const result = calcGamePoints(game);
+    expect(result.team1).toBe(0);
+    expect(result.team2).toBe(0);
+    expect(result.winner).toBe('tie');
   });
 });

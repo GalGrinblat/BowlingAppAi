@@ -118,8 +118,8 @@ export const calculateGameTotals = (game: Game): {
   team2TotalPinsWithHandicap: number;
   team2TotalPinsNoHandicap: number;
 } => {
-  const team1Points = (game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team1.points, 0) || 0) + (game.grandTotalPoints?.team1 || 0);
-  const team2Points = (game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team2.points, 0) || 0) + (game.grandTotalPoints?.team2 || 0);
+  const team1Points = (game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team1.points, 0) || 0) + (game.grandTotalPoints?.team1 || 0) + getTeamAllPresentBonus(game, 'team1');
+  const team2Points = (game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team2.points, 0) || 0) + (game.grandTotalPoints?.team2 || 0) + getTeamAllPresentBonus(game, 'team2');
 
   const team1TotalPinsWithHandicap = game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team1.totalWithHandicap, 0) || 0;
   const team2TotalPinsWithHandicap = game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team2.totalWithHandicap, 0) || 0;
@@ -148,34 +148,28 @@ export const calculateGrandTotalPoints = (game: Game): { team1: number; team2: n
     return team1Complete && team2Complete;
   }) || false;
 
-  // All-present bonus (per game, awarded once regardless of match count)
-  const presentBonus = (game.teamAllPresentBonusEnabled && game.teamAllPresentBonusPoints) ? game.teamAllPresentBonusPoints : 0;
-  const team1AllPresent = presentBonus > 0 && game.team1.players.every((p: GamePlayer) => !p.absent);
-  const team2AllPresent = presentBonus > 0 && game.team2.players.every((p: GamePlayer) => !p.absent);
-
   if (allMatchesComplete) {
     // Calculate total pins with handicap across all matches
     const team1GrandTotal = game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team1.totalWithHandicap, 0) || 0;
     const team2GrandTotal = game.matches?.reduce((sum: number, m: GameMatch) => sum + m.team2.totalWithHandicap, 0) || 0;
 
-    let winPts1 = 0, winPts2 = 0;
     if (team1GrandTotal > team2GrandTotal) {
-      winPts1 = teamGamePointsPerWin;
+      return { team1: teamGamePointsPerWin, team2: 0 };
     } else if (team2GrandTotal > team1GrandTotal) {
-      winPts2 = teamGamePointsPerWin;
+      return { team1: 0, team2: teamGamePointsPerWin };
     } else {
-      winPts1 = teamGamePointsPerWin / 2;
-      winPts2 = teamGamePointsPerWin / 2;
+      return { team1: teamGamePointsPerWin / 2, team2: teamGamePointsPerWin / 2 };
     }
-
-    return {
-      team1: winPts1 + (team1AllPresent ? presentBonus : 0),
-      team2: winPts2 + (team2AllPresent ? presentBonus : 0),
-    };
   } else {
-    return {
-      team1: team1AllPresent ? presentBonus : 0,
-      team2: team2AllPresent ? presentBonus : 0,
-    };
+    return { team1: 0, team2: 0 };
   }
+};
+
+// All-present bonus is never stored — always computed dynamically so it works for
+// old completed games that were saved before the feature existed.
+export const getTeamAllPresentBonus = (game: Game, teamKey: 'team1' | 'team2'): number => {
+  if (!game.teamAllPresentBonusEnabled || !game.teamAllPresentBonusPoints) return 0;
+  const players = game[teamKey]?.players;
+  if (!players || players.length === 0) return 0;
+  return players.every((p: GamePlayer) => !p.absent) ? game.teamAllPresentBonusPoints : 0;
 };

@@ -58,6 +58,15 @@ const ScoreInputCell: React.FC<ScoreInputCellProps> = ({ value, tabIndex, onComm
   );
 };
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const getAllPresentBonus = (game: Game, teamKey: 'team1' | 'team2'): number => {
+  if (!game.teamAllPresentBonusEnabled || !game.teamAllPresentBonusPoints) return 0;
+  const players = game[teamKey]?.players;
+  if (!players || players.length === 0) return 0;
+  return players.every((p: GamePlayer) => !p.absent) ? game.teamAllPresentBonusPoints : 0;
+};
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
@@ -68,15 +77,19 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
   const isPrint = mode === 'print';
   const isEdit = mode === 'edit';
 
-  // Grand total across all matches + game-level bonus
+  // All-present bonus computed dynamically (never stored) so it works for old saved games too
+  const team1PresentBonus = getAllPresentBonus(game, 'team1');
+  const team2PresentBonus = getAllPresentBonus(game, 'team2');
+
+  // Grand total across all matches + game-level bonus (grand winner pts + all-present bonus)
   const totals = useMemo(() => ({
-    team1TotalPoints: matches.reduce((s: number, m: GameMatch) => s + (m.team1?.points ?? 0), 0) + (game.grandTotalPoints?.team1 ?? 0),
-    team2TotalPoints: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.points ?? 0), 0) + (game.grandTotalPoints?.team2 ?? 0),
+    team1TotalPoints: matches.reduce((s: number, m: GameMatch) => s + (m.team1?.points ?? 0), 0) + (game.grandTotalPoints?.team1 ?? 0) + team1PresentBonus,
+    team2TotalPoints: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.points ?? 0), 0) + (game.grandTotalPoints?.team2 ?? 0) + team2PresentBonus,
     team1TotalPins: matches.reduce((s: number, m: GameMatch) => s + (m.team1?.totalPins ?? 0), 0),
     team2TotalPins: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.totalPins ?? 0), 0),
     team1TotalWithHC: matches.reduce((s: number, m: GameMatch) => s + (m.team1?.totalWithHandicap ?? 0), 0),
     team2TotalWithHC: matches.reduce((s: number, m: GameMatch) => s + (m.team2?.totalWithHandicap ?? 0), 0),
-  }), [matches, game.grandTotalPoints]);
+  }), [matches, game.grandTotalPoints, team1PresentBonus, team2PresentBonus]);
 
   const formatPts = (pts: number) => pts % 1 === 0 ? String(pts) : pts.toFixed(1);
 
@@ -110,16 +123,12 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     const playerCount = playerNames.length;
 
     const grandPts = isTeam1 ? (game.grandTotalPoints?.team1 ?? 0) : (game.grandTotalPoints?.team2 ?? 0);
+    const presentBonus = isTeam1 ? team1PresentBonus : team2PresentBonus;
     const teamTotalPts = isTeam1 ? totals.team1TotalPoints : totals.team2TotalPoints;
     const teamTotalWithHC = isTeam1 ? totals.team1TotalWithHC : totals.team2TotalWithHC;
     const opponentTotalWithHC = isTeam1 ? totals.team2TotalWithHC : totals.team1TotalWithHC;
 
-    // All-present bonus display (derived, not stored separately)
-    const allPresentBonus = (game.teamAllPresentBonusEnabled && game.teamAllPresentBonusPoints)
-      ? (gamePlayers.length > 0 && gamePlayers.every(p => !p.absent) ? game.teamAllPresentBonusPoints : 0)
-      : null;
-
-    // Grand total win icon: compare pins (not points)
+    // Grand total win icon: compare pins (not points) — Bug 2 fix
     const grandWinIcon = teamTotalWithHC > opponentTotalWithHC ? '✅'
       : teamTotalWithHC === opponentTotalWithHC ? '⚖️' : '❌';
 
@@ -144,13 +153,12 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
     const headerBg = isPrint ? 'bg-gray-200 text-gray-900' : accentHeader;
     const subHeaderBg = isPrint ? 'bg-gray-100 text-gray-700' : accentSubHeader;
 
-    // Bug 6: "Total" section is now a single "Pins" column (removed the "Pts" sub-column)
+    // "Total" section is a single "Pins" column (Bug 6)
     const numCols = matches.length * 2 + 2; // Player + (Score+Pts)*N + Pins
 
-    // Blank cell height for print mode
     const blankCellH = isPrint ? 'py-5' : 'py-1.5';
 
-    // Bug 4: use logical border-s (inline-start) so it maps to border-right in RTL
+    // Bug 4: logical border-s maps to border-left in LTR and border-right in RTL
     const sepClass = (mi: number) => !isPrint && mi > 0 ? 'border-s-2 border-s-gray-400' : '';
 
     return (
@@ -159,10 +167,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
           <thead>
             {/* Team name */}
             <tr className={headerBg}>
-              <th
-                colSpan={numCols}
-                className={`px-2 py-1.5 font-bold ${thBorder} text-center`}
-              >
+              <th colSpan={numCols} className={`px-2 py-1.5 font-bold ${thBorder} text-center`}>
                 {!isPrint && `${emoji} `}{team?.name ?? ''}
               </th>
             </tr>
@@ -176,7 +181,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   {t('common.match')} {m.matchNumber}
                 </th>
               ))}
-              {/* Bug 6: single "Pins" column, no "Pts" sub-column */}
+              {/* Single "Total" column */}
               <th className={`px-1 py-1 text-center text-xs font-bold ${thBorder} ${isPrint ? 'bg-gray-200' : 'bg-gray-100'}`}>
                 {t('common.total')}
               </th>
@@ -231,9 +236,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     const result = pm?.result;
                     const matchPts = isTeam1 ? (pm?.team1Points ?? 0) : (pm?.team2Points ?? 0);
                     const bonusPoints = !isAbsent ? (matchPlayer?.bonusPoints ?? 0) : 0;
-                    const pinsVal = isAbsent
-                      ? String(absentScore)
-                      : (matchPlayer?.pins ?? '');
+                    const pinsVal = isAbsent ? String(absentScore) : (matchPlayer?.pins ?? '');
 
                     const resultIcon = !isAbsent && result != null
                       ? (isTeam1
@@ -276,7 +279,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     );
                   })}
 
-                  {/* Bug 6: single total column — player total pins */}
+                  {/* Single total column: player total pins */}
                   <td className={`px-1 py-1.5 text-center text-xs font-bold ${thBorder} ${isPrint ? 'bg-gray-100' : 'bg-gray-50'} ${isAbsent && !isPrint ? 'text-gray-400 italic' : ''}`}>
                     {isPrint
                       ? ''
@@ -375,27 +378,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
               </tr>
             )}
 
-            {/* Bug 5 UI: All Present Bonus row — only when teamAllPresentBonusEnabled */}
-            {game.teamAllPresentBonusEnabled && !isPrint && (
-              <tr className={`text-xs font-semibold ${isPrint ? 'bg-gray-50' : 'bg-amber-50 text-amber-700'}`}>
-                <td className={`px-2 py-1.5 ${thBorder} ${isRTL ? 'text-right' : 'text-left'}`}>
-                  {t('gameHistory.allPresentBonus')}
-                </td>
-                {matches.map((_, mi) => (
-                  <React.Fragment key={`apb-${mi}`}>
-                    <td className={`${thBorder} ${sepClass(mi)}`} />
-                    <td className={`${thBorder}`} />
-                  </React.Fragment>
-                ))}
-                <td className={`px-1 py-1.5 text-center font-bold ${thBorder}`}>
-                  {allPresentBonus !== null
-                    ? (allPresentBonus > 0 ? `+${formatPts(allPresentBonus)}` : '—')
-                    : ''}
-                </td>
-              </tr>
-            )}
-
-            {/* Total Points row — per-match totals; last cell shows grandPts (game-level bonus) */}
+            {/* Total Points row — per-match totals in pts cols; last cell = grandPts + all-present bonus */}
             <tr className={`font-bold text-xs border-t-2 ${isPrint ? 'border-gray-800 bg-gray-100' : 'bg-gray-800 text-white border-gray-700'}`}>
               <td className={`px-2 py-1.5 ${thBorder} ${isRTL ? 'text-right' : 'text-left'}`}>
                 {t('gameHistory.totalPoints')}
@@ -411,13 +394,20 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   </React.Fragment>
                 );
               })}
-              {/* Bug 6: last cell shows grandPts (game-level bonus), not total */}
+              {/* Grand winner pts + all-present bonus indicator in the points column */}
               <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
-                {!isPrint ? formatPts(grandPts) : ''}
+                {!isPrint && (
+                  <>
+                    <div>{formatPts(grandPts)}</div>
+                    {presentBonus > 0 && (
+                      <div className="text-[10px] text-amber-400 font-bold">⭐+{formatPts(presentBonus)}</div>
+                    )}
+                  </>
+                )}
               </td>
             </tr>
 
-            {/* Bug 6: new "Game Score" row — single prominent cell showing total team score */}
+            {/* Game Score row — complete team total (match pts + grand pts + all-present bonus) */}
             {!isPrint && (
               <tr className={`font-bold text-xs border-t ${isTeam1 ? 'bg-orange-600 text-white' : 'bg-blue-600 text-white'}`}>
                 <td className={`px-2 py-1.5 ${thBorder} ${isRTL ? 'text-right' : 'text-left'}`}>

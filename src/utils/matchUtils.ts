@@ -208,8 +208,13 @@ export const calculateMatchResults = (game: Game, matchIndex: number): void => {
 
 export const calcGamePoints = (game: Game): { team1: number; team2: number; winner: 'team1' | 'team2' | 'tie' } => {
   const matches = game.matches ?? [];
-  const team1 = matches.reduce((s, m) => s + (m.team1?.points || 0), 0) + (game.grandTotalPoints?.team1 || 0);
-  const team2 = matches.reduce((s, m) => s + (m.team2?.points || 0), 0) + (game.grandTotalPoints?.team2 || 0);
+  const getBonus = (teamKey: 'team1' | 'team2') => {
+    if (!game.teamAllPresentBonusEnabled || !game.teamAllPresentBonusPoints) return 0;
+    const players = game[teamKey]?.players;
+    return (players?.length && players.every(p => !p.absent)) ? game.teamAllPresentBonusPoints : 0;
+  };
+  const team1 = matches.reduce((s, m) => s + (m.team1?.points || 0), 0) + (game.grandTotalPoints?.team1 || 0) + getBonus('team1');
+  const team2 = matches.reduce((s, m) => s + (m.team2?.points || 0), 0) + (game.grandTotalPoints?.team2 || 0) + getBonus('team2');
   return { team1, team2, winner: team1 > team2 ? 'team1' : team2 > team1 ? 'team2' : 'tie' };
 };
 
