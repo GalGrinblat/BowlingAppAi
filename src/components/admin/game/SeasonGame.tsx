@@ -8,7 +8,7 @@ import { calculateGrandTotalPoints } from '../../../utils/statsUtils';
 import { PreMatchSetup } from '../../common/game/PreMatchSetup';
 import { useGameInitializer } from '../../../hooks/useGameInitializer';
 import { useTranslation } from '../../../contexts/LanguageContext';
-import { ArrowLeft } from '../../common/Icons';
+import { ArrowLeft, ArrowRight } from '../../common/Icons';
 
 import type { Game, GamePlayer, GameMatch, MatchPlayer } from '../../../types/index';
 
@@ -331,12 +331,12 @@ export const SeasonGame: React.FC = () => {
       )}
 
       {/* Actions */}
-      <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <div className="flex gap-3" dir={isRTL ? 'rtl' : 'ltr'}>
         <button
           onClick={handleCancel}
           className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors"
         >
-          <ArrowLeft size={18} />
+          {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
           {t('common.back')}
         </button>
         <button

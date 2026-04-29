@@ -92,30 +92,29 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
     <div className="flex items-center gap-2 flex-shrink-0">
       {player.absent ? (
         <>
-          {isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} reversed />}
           <div className="text-center">
             <span className="text-gray-400 text-sm block">{t('games.withHdc')}</span>
             <div className={`w-16 px-2 py-1 ${textColor} font-bold text-sm text-center`}>
               {scoreWithHandicap}
             </div>
           </div>
+          <BonusIndicator bonusPoints={matchPlayer.bonusPoints} reversed={isRightAligned} />
           <div className="text-center">
             <span className="text-gray-400 text-sm block">{t('common.score')}</span>
             <div className="w-16 px-2 py-1 bg-red-700 text-yellow-300 rounded border border-red-600 font-bold text-center text-sm">
               {absentScore}
             </div>
           </div>
-          {!isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} />}
         </>
       ) : (
         <>
-          {isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} reversed />}
           <div className="text-center">
             <span className="text-gray-400 text-sm block">{t('games.withHdc')}</span>
             <div className={`w-16 px-2 py-1 ${textColor} font-bold text-sm text-center`}>
               {scoreWithHandicap}
             </div>
           </div>
+          <BonusIndicator bonusPoints={matchPlayer.bonusPoints} reversed={isRightAligned} />
           <div className="text-center">
             <label htmlFor={`score-${matchIdx}-${teamKey}-${playerIdx}`} className="text-gray-400 text-sm block">{t('common.score')}</label>
             <input
@@ -138,7 +137,6 @@ export const PlayerScoreInput: React.FC<PlayerScoreInputProps> = ({
               }`}
             />
           </div>
-          {!isRightAligned && <BonusIndicator bonusPoints={matchPlayer.bonusPoints} />}
         </>
       )}
     </div>

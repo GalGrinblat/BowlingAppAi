@@ -34,7 +34,7 @@ export const calculatePlayerStats = (game: Game): GameStats => {
     }
     if (player.absent) {
       const matchesPerGame = game.matchesPerGame || game.matches?.length || 1;
-      const absenceScore = player.average - ABSENT_PLAYER_PENALTY;
+      const absenceScore = Math.round(player.average) - ABSENT_PLAYER_PENALTY;
       const totalPins = absenceScore * matchesPerGame;
       const gameAverage = absenceScore;
       const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
@@ -63,7 +63,7 @@ export const calculatePlayerStats = (game: Game): GameStats => {
     }
     if (player.absent) {
       const matchesPerGame = game.matchesPerGame || game.matches?.length || 1;
-      const absenceScore = player.average - ABSENT_PLAYER_PENALTY;
+      const absenceScore = Math.round(player.average) - ABSENT_PLAYER_PENALTY;
       const totalPins = absenceScore * matchesPerGame;
       const gameAverage = absenceScore;
       const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {

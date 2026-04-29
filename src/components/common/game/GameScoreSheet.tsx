@@ -202,15 +202,13 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
             {Array.from({ length: playerCount }, (_, playerIdx) => {
               const player = gamePlayers[playerIdx];
               const isAbsent = player?.absent ?? false;
-              const absentScore = player ? Math.floor(player.average - ABSENT_PLAYER_PENALTY) : 0;
+              const absentScore = player ? Math.round(player.average) - ABSENT_PLAYER_PENALTY : 0;
               const playerTotalPins = isAbsent
                 ? absentScore * matches.length
                 : matches.reduce((s, m) => {
                     const pins = m[teamKey]?.players[playerIdx]?.pins;
                     return s + (pins !== '' && pins !== undefined ? parseInt(pins) : 0);
                   }, 0);
-              const hasAnyResult = matches.some(m => m.playerMatches?.[playerIdx]?.result != null);
-
               return (
                 <tr key={playerIdx} className={`${tdBorder} ${!isPrint ? hoverBg : ''}`}>
                   {/* Player name */}
@@ -251,7 +249,9 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                         {/* Score cell */}
                         <td className={`px-1 text-center ${thBorder} ${sepClass(mi)} ${blankCellH}`}>
                           {isAbsent ? (
-                            <span className="text-xs text-gray-400 italic">({absentScore})</span>
+                            <div className="w-14 mx-auto px-1 py-1 text-center text-xs rounded border border-gray-200 bg-gray-50 text-gray-400 italic">
+                              ({absentScore})
+                            </div>
                           ) : isEdit ? (
                             <ScoreInputCell
                               value={pinsVal}
@@ -283,9 +283,9 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   <td className={`px-1 py-1.5 text-center text-xs font-bold ${thBorder} ${isPrint ? 'bg-gray-100' : 'bg-gray-50'} ${isAbsent && !isPrint ? 'text-gray-400 italic' : ''}`}>
                     {isPrint
                       ? ''
-                      : hasAnyResult
-                        ? (isAbsent ? `(${playerTotalPins})` : (playerTotalPins > 0 ? playerTotalPins : ''))
-                        : ''}
+                      : isAbsent
+                        ? `(${playerTotalPins})`
+                        : (playerTotalPins > 0 ? playerTotalPins : '')}
                   </td>
                 </tr>
               );
