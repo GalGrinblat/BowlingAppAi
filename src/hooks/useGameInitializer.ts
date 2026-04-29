@@ -7,7 +7,6 @@ import type { Game, GameMatch, MatchPlayer, GamePlayer } from '../types/index';
 
 interface GameInitResult {
   game: Game | null;
-  showSummary: boolean;
   showPreMatch: boolean;
   currentMatch: number;
   team1Players: GamePlayer[];
@@ -24,7 +23,6 @@ async function fetchAndAssignTeams(gameObj: Game) {
 
 export function useGameInitializer(gameId: string): GameInitResult & {
   setGame: React.Dispatch<React.SetStateAction<Game | null>>;
-  setShowSummary: React.Dispatch<React.SetStateAction<boolean>>;
   setShowPreMatch: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentMatch: React.Dispatch<React.SetStateAction<number>>;
   setTeam1Players: React.Dispatch<React.SetStateAction<GamePlayer[]>>;
@@ -32,7 +30,6 @@ export function useGameInitializer(gameId: string): GameInitResult & {
 } {
   const [game, setGame] = useState<Game | null>(null);
   const [currentMatch, setCurrentMatch] = useState<number>(1);
-  const [showSummary, setShowSummary] = useState<boolean>(false);
   const [showPreMatch, setShowPreMatch] = useState<boolean>(false);
   const [team1Players, setTeam1Players] = useState<GamePlayer[]>([]);
   const [team2Players, setTeam2Players] = useState<GamePlayer[]>([]);
@@ -69,9 +66,7 @@ export function useGameInitializer(gameId: string): GameInitResult & {
         setTeam2Players(gameData.team2.players);
       }
 
-      if (gameData.status === 'completed') {
-        setShowSummary(true);
-      } else {
+      if (gameData.status !== 'completed') {
         const hasAnyScores = gameData.matches.some((m: GameMatch) =>
           m.team1.players.some((p: MatchPlayer) => p.pins !== '') ||
           m.team2.players.some((p: MatchPlayer) => p.pins !== '')
@@ -79,8 +74,7 @@ export function useGameInitializer(gameId: string): GameInitResult & {
 
         if (!hasAnyScores) {
           setShowPreMatch(true);
-        } else {
-          if (!gameData.team1 || !gameData.team2) return;
+        } else if (gameData.team1 && gameData.team2) {
           const incompleteMatchIndex = gameData.matches.findIndex((m: GameMatch) => {
             const team1Complete = gameData.team1!.players.every((p: GamePlayer, idx: number) =>
               p.absent || (m.team1.players[idx] && m.team1.players[idx].pins !== '')
@@ -93,8 +87,6 @@ export function useGameInitializer(gameId: string): GameInitResult & {
 
           if (incompleteMatchIndex >= 0) {
             setCurrentMatch(incompleteMatchIndex + 1);
-          } else {
-            setShowSummary(true);
           }
         }
       }
@@ -106,7 +98,6 @@ export function useGameInitializer(gameId: string): GameInitResult & {
 
   return {
     game, setGame,
-    showSummary, setShowSummary,
     showPreMatch, setShowPreMatch,
     currentMatch, setCurrentMatch,
     team1Players, setTeam1Players,

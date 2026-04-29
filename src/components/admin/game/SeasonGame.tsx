@@ -2,10 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { gamesApi } from '../../../services/api';
 import { logger } from '../../../utils/logger';
-import { GameSummaryView } from '../../common/game/GameSummaryView';
 import { GameScoreSheet } from '../../common/game/GameScoreSheet';
 import { calculateMatchResults, calculateBonusPoints, clampScore } from '../../../utils/matchUtils';
-import { calculatePlayerStats, calculateGameTotals, calculateGrandTotalPoints } from '../../../utils/statsUtils';
+import { calculateGrandTotalPoints } from '../../../utils/statsUtils';
 import { PreMatchSetup } from '../../common/game/PreMatchSetup';
 import { useGameInitializer } from '../../../hooks/useGameInitializer';
 import { useTranslation } from '../../../contexts/LanguageContext';
@@ -19,7 +18,6 @@ export const SeasonGame: React.FC = () => {
   const { t, isRTL } = useTranslation();
   const {
     game, setGame,
-    showSummary, setShowSummary,
     showPreMatch, setShowPreMatch,
     team1Players,
     team2Players,
@@ -248,18 +246,9 @@ export const SeasonGame: React.FC = () => {
 
   if (!game) return <div>{t('common.loading')}</div>;
 
-  if (showSummary) {
-    const totals = calculateGameTotals(game);
-    const playerStats = calculatePlayerStats(game);
-    return (
-      <GameSummaryView
-        game={game}
-        totals={totals}
-        playerStats={playerStats}
-        onBack={() => setShowSummary(false)}
-        onFinish={finishGame}
-      />
-    );
+  if (game.status === 'completed') {
+    navigate(`/admin/games/${gameId}`, { replace: true });
+    return null;
   }
 
   if (showPreMatch) {
@@ -285,7 +274,7 @@ export const SeasonGame: React.FC = () => {
       </div>
 
       {/* Pending submission banner */}
-      {sub && game.status !== 'completed' && (
+      {sub && (
         <div className="bg-yellow-900/40 border border-yellow-500 rounded-xl p-4 mb-4 flex items-start justify-between gap-4">
           <div>
             <p className="text-yellow-300 font-semibold text-sm">
