@@ -59,7 +59,7 @@ export const PlayerRosterTable: React.FC<PlayerRosterTableProps> = ({ teamName, 
               {(players.reduce((sum, p) => sum + p.average, 0) / players.length || 0).toFixed(2)}
             </td>
             <td className={`text-center px-2 py-2 font-bold ${handicapColor}`}>
-              {players.reduce((sum, p) => sum + p.handicap, 0)}
+              {players.reduce((sum, p) => sum + p.handicap, 0) || '-'}
             </td>
           </tr>
         </tfoot>

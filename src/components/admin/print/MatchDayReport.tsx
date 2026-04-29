@@ -32,7 +32,7 @@ export const MatchDayReport: React.FC<MatchDayReportProps> = ({
   season, league, teams, games, matchDayGames, matchDay,
   teamStandings, teamPlayersMap
 }) => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { formatMatchDate } = useDateFormat();
 
   const scheduleInfo = season.schedule?.find((s: ScheduleMatchDay) => s.matchDay === matchDay);
@@ -95,7 +95,7 @@ export const MatchDayReport: React.FC<MatchDayReportProps> = ({
             {/* Teams Face-off */}
             <div className="border-x-2 border-b-2 border-gray-800 p-6">
               <div className="grid grid-cols-5 gap-6 items-center mb-6">
-                <div className="col-span-2 text-right">
+                <div className={`col-span-2 ${isRTL ? 'text-left' : 'text-right'}`}>
                   <h4 className="text-3xl font-bold text-gray-900 mb-2">{team1.name}</h4>
                   {team1Standing && (
                     <div className="text-sm text-gray-600">
@@ -109,7 +109,7 @@ export const MatchDayReport: React.FC<MatchDayReportProps> = ({
                     <H2HRecord h2h={h2h} team1Name={team1.name} team2Name={team2.name} variant="print" />
                   )}
                 </div>
-                <div className="col-span-2">
+                <div className={`col-span-2 ${isRTL ? 'text-right' : 'text-left'}`}>
                   <h4 className="text-3xl font-bold text-gray-900 mb-2">{team2.name}</h4>
                   {team2Standing && (
                     <div className="text-sm text-gray-600">

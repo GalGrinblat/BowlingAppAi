@@ -10,10 +10,10 @@ export interface GameScoreSheetProps {
   mode: GameScoreSheetMode;
   // edit mode only
   onUpdateScore?: (matchIndex: number, team: 'team1' | 'team2', playerIndex: number, pins: string) => void;
-  // print mode fallback: player names when game.team1/team2 not yet populated
+  // print mode fallback: player names + handicap when game.team1/team2 not yet populated
   printPlayers?: {
-    team1: { id: string; name: string }[];
-    team2: { id: string; name: string }[];
+    team1: { id: string; name: string; handicap?: number }[];
+    team2: { id: string; name: string; handicap?: number }[];
   };
 }
 
@@ -122,11 +122,15 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
 
     // Determine player list: from game state for edit/readonly, with fallback for print
     const gamePlayers: GamePlayer[] = team?.players ?? [];
-    const fallbackNames = (isTeam1 ? printPlayers?.team1 : printPlayers?.team2) ?? [];
     const playerNames: string[] = gamePlayers.length > 0
       ? gamePlayers.map(p => p.name)
-      : fallbackNames.map(p => p.name);
+      : ((isTeam1 ? printPlayers?.team1 : printPlayers?.team2) ?? []).map(p => p.name);
     const playerCount = playerNames.length;
+
+    const fallbackPlayers = (isTeam1 ? printPlayers?.team1 : printPlayers?.team2) ?? [];
+    const teamHandicap = gamePlayers.length > 0
+      ? gamePlayers.reduce((s, p) => s + (p.handicap ?? 0), 0)
+      : fallbackPlayers.reduce((s, p) => s + (p.handicap ?? 0), 0);
 
     const grandPts = isTeam1 ? (game.grandTotalPoints?.team1 ?? 0) : (game.grandTotalPoints?.team2 ?? 0);
     const presentBonus = isTeam1 ? team1PresentBonus : team2PresentBonus;
@@ -220,7 +224,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   {/* Player name */}
                   <td className={`px-2 py-1.5 text-xs font-semibold ${isPrint ? 'text-gray-900' : 'text-gray-800'} ${thBorder} ${isRTL ? 'text-right' : 'text-left'}`}>
                     <div className="whitespace-nowrap">
-                      {playerIdx + 1}. {isPrint ? playerNames[playerIdx]?.split(' ')[0] : playerNames[playerIdx]}
+                      {playerIdx + 1}. {playerNames[playerIdx]}
                       {isAbsent && !isPrint && (
                         <span className="ml-1 text-[10px] font-normal text-red-400 italic">({t('games.absent')})</span>
                       )}
@@ -325,15 +329,17 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   const hdc = (m[teamKey]?.totalWithHandicap ?? 0) - (m[teamKey]?.totalPins ?? 0);
                   return (
                     <React.Fragment key={`hdc-${mi}`}>
-                      <td className={`px-1 py-1.5 text-center ${thBorder} ${sepClass(mi)} ${isPrint ? blankCellH : ''}`}>
-                        {!isPrint ? hdc : ''}
+                      <td className={`px-1 py-1.5 text-center ${thBorder} ${sepClass(mi)}`}>
+                        {isPrint ? (teamHandicap > 0 ? teamHandicap : '') : hdc}
                       </td>
                       <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
                     </React.Fragment>
                   );
                 })}
-                <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
-                  {!isPrint ? (isTeam1 ? totals.team1TotalWithHC - totals.team1TotalPins : totals.team2TotalWithHC - totals.team2TotalPins) : ''}
+                <td className={`px-1 py-1.5 text-center ${thBorder}`}>
+                  {isPrint
+                    ? (teamHandicap > 0 ? teamHandicap * matches.length : '')
+                    : (isTeam1 ? totals.team1TotalWithHC - totals.team1TotalPins : totals.team2TotalWithHC - totals.team2TotalPins)}
                 </td>
               </tr>
             )}

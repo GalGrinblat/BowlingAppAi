@@ -104,7 +104,7 @@ export const PrintCombined: React.FC<PrintCombinedProps> = ({
   const getTeamName = (teamId: string) => teams.find(t => t.id === teamId)?.name || teamId;
 
   return (
-    <div className="print-modal-root fixed inset-0 bg-white z-50 overflow-auto">
+    <div className="print-modal-root fixed inset-0 bg-white z-50 overflow-auto" dir={direction}>
       <div className="no-print bg-gray-100 p-4 flex justify-between items-center border-b">
         <h2 className="text-xl font-bold text-gray-800">{t('print.printPreview')}</h2>
         <div className="flex gap-2">
