@@ -170,6 +170,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
 
     // Bug 4: logical border-s maps to border-left in LTR and border-right in RTL
     const sepClass = (mi: number) => !isPrint && mi > 0 ? 'border-s-2 border-s-gray-400' : '';
+    const totalSepClass = !isPrint ? 'border-s-2 border-s-gray-400' : '';
 
     return (
       <div className="overflow-x-auto">
@@ -192,7 +193,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                 </th>
               ))}
               {/* Single "Total" column */}
-              <th className={`px-1 py-1 text-center text-xs font-bold ${thBorder} ${isPrint ? 'bg-gray-200' : 'bg-gray-100'}`}>
+              <th className={`px-1 py-1 text-center text-xs font-bold ${thBorder} ${totalSepClass} ${isPrint ? 'bg-gray-200' : 'bg-gray-100'}`}>
                 {t('common.total')}
               </th>
             </tr>
@@ -204,7 +205,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   <th className={`px-1 py-1 text-center text-xs font-semibold ${thBorder}`}>{t('common.pts')}</th>
                 </React.Fragment>
               ))}
-              <th className={`px-1 py-1 text-center text-xs font-semibold ${thBorder} ${isPrint ? 'bg-gray-200' : 'bg-gray-100'}`}>{t('common.pins')}</th>
+              <th className={`px-1 py-1 text-center text-xs font-semibold ${thBorder} ${totalSepClass} ${isPrint ? 'bg-gray-200' : 'bg-gray-100'}`}>{t('common.pins')}</th>
             </tr>
           </thead>
           <tbody>
@@ -216,8 +217,8 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
               const playerTotalPins = isAbsent
                 ? absentScore * matches.length
                 : matches.reduce((s, m) => {
-                    const pins = m[teamKey]?.players[playerIdx]?.pins;
-                    return s + (pins !== '' && pins !== undefined ? parseInt(pins) : 0);
+                    const pins = (teamKey === 'team1' ? m.team1 : m.team2).players[playerIdx]?.pins;
+                    return s + (pins != null && pins !== '' ? parseInt(pins) : 0);
                   }, 0);
               return (
                 <tr key={playerIdx} className={`${tdBorder} ${!isPrint ? hoverBg : ''}`}>
@@ -246,7 +247,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     const bonusPoints = !isAbsent ? (matchPlayer?.bonusPoints ?? 0) : 0;
                     const pinsVal = isAbsent ? String(absentScore) : (matchPlayer?.pins ?? '');
 
-                    const resultIcon = !isAbsent && result != null
+                    const resultIcon = result != null
                       ? (isTeam1
                           ? (result === 'team1' ? '✅' : result === 'team2' ? '❌' : '⚖️')
                           : (result === 'team2' ? '✅' : result === 'team1' ? '❌' : '⚖️'))
@@ -277,20 +278,20 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                           {!isPrint && resultIcon && (
                             <div className="text-[10px] leading-none mt-0.5">{resultIcon}</div>
                           )}
-                          {!isPrint && bonusPoints > 0 && (
-                            <div className="text-[10px] leading-none mt-0.5 text-amber-500 font-bold">⭐+{bonusPoints}</div>
-                          )}
                         </td>
                         {/* Points cell */}
                         <td className={`px-1 text-center ${thBorder} ${blankCellH} ${!isPrint ? accentPtsColor : 'text-gray-700'} text-xs font-semibold`}>
                           {!isPrint && result != null ? formatPts(matchPts) : ''}
+                          {!isPrint && bonusPoints > 0 && (
+                            <div className="text-[10px] leading-none mt-0.5 text-amber-500 font-bold">⭐+{bonusPoints}</div>
+                          )}
                         </td>
                       </React.Fragment>
                     );
                   })}
 
                   {/* Single total column: player total pins */}
-                  <td className={`px-1 py-1.5 text-center text-xs font-bold ${thBorder} ${isPrint ? 'bg-gray-100' : 'bg-gray-50'} ${isAbsent && !isPrint ? 'text-gray-400 italic' : ''}`}>
+                  <td className={`px-1 py-1.5 text-center text-xs font-bold ${thBorder} ${totalSepClass} ${isPrint ? 'bg-gray-100' : 'bg-gray-50'} ${isAbsent && !isPrint ? 'text-gray-400 italic' : ''}`}>
                     {isPrint
                       ? ''
                       : isAbsent
@@ -314,7 +315,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   <td className={`${thBorder} ${isPrint ? blankCellH : ''}`} />
                 </React.Fragment>
               ))}
-              <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
+              <td className={`px-1 py-1.5 text-center ${thBorder} ${totalSepClass} ${isPrint ? blankCellH : ''}`}>
                 {!isPrint ? (isTeam1 ? totals.team1TotalPins : totals.team2TotalPins) : ''}
               </td>
             </tr>
@@ -336,7 +337,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     </React.Fragment>
                   );
                 })}
-                <td className={`px-1 py-1.5 text-center ${thBorder}`}>
+                <td className={`px-1 py-1.5 text-center ${thBorder} ${totalSepClass}`}>
                   {isPrint
                     ? (teamHandicap > 0 ? teamHandicap * matches.length : '')
                     : (isTeam1 ? totals.team1TotalWithHC - totals.team1TotalPins : totals.team2TotalWithHC - totals.team2TotalPins)}
@@ -379,7 +380,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                   );
                 })}
                 {/* Bug 2: grand total icon uses pins comparison, not points */}
-                <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
+                <td className={`px-1 py-1.5 text-center ${thBorder} ${totalSepClass} ${isPrint ? blankCellH : ''}`}>
                   {!isPrint && (
                     <>
                       <div>{teamTotalWithHC}</div>
@@ -407,7 +408,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                 );
               })}
               {/* Grand winner pts + all-present bonus indicator in the points column */}
-              <td className={`px-1 py-1.5 text-center ${thBorder} ${isPrint ? blankCellH : ''}`}>
+              <td className={`px-1 py-1.5 text-center ${thBorder} ${totalSepClass} ${isPrint ? blankCellH : ''}`}>
                 {!isPrint && (
                   <>
                     <div>{formatPts(grandPts)}</div>
@@ -431,7 +432,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
                     <td className={`${thBorder}`} />
                   </React.Fragment>
                 ))}
-                <td className={`px-1 py-2 text-center text-base font-bold ${thBorder}`}>
+                <td className={`px-1 py-2 text-center text-base font-bold ${thBorder} ${totalSepClass}`}>
                   {formatPts(teamTotalPts)}
                 </td>
               </tr>
