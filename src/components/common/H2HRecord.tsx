@@ -31,15 +31,22 @@ export const H2HRecord: React.FC<H2HRecordProps> = ({ h2h, team1Name, team2Name,
     h2h.winStreak?.team === 'team1' ? team1Name : team2Name;
 
   if (variant === 'compact') {
+    const leftName = isRTL ? team2Name : team1Name;
+    const rightName = isRTL ? team1Name : team2Name;
+    const leftWinsCompact = isRTL ? h2h.team2Wins : h2h.team1Wins;
+    const rightWinsCompact = isRTL ? h2h.team1Wins : h2h.team2Wins;
+    const leftColorCompact = isRTL ? team2ScoreColor : team1ScoreColor;
+    const rightColorCompact = isRTL ? team1ScoreColor : team2ScoreColor;
+
     return (
       <div className="flex items-center gap-1.5 text-sm flex-wrap">
         <span className="text-gray-500 font-medium">📊 {t('games.seriesRecord')}</span>
         <div dir="ltr" className="inline-flex items-center gap-1">
-          <span className="font-semibold text-gray-800">{team1Name}</span>
-          <span className={`font-bold text-base ${team1ScoreColor}`}>{h2h.team1Wins}</span>
+          <span className="font-semibold text-gray-800">{leftName}</span>
+          <span className={`font-bold text-base ${leftColorCompact}`}>{leftWinsCompact}</span>
           <span className="text-gray-400">—</span>
-          <span className={`font-bold text-base ${team2ScoreColor}`}>{h2h.team2Wins}</span>
-          <span className="font-semibold text-gray-800">{team2Name}</span>
+          <span className={`font-bold text-base ${rightColorCompact}`}>{rightWinsCompact}</span>
+          <span className="font-semibold text-gray-800">{rightName}</span>
         </div>
         {h2h.ties > 0 && (
           <span className="text-xs text-gray-500">· {h2h.ties} {t('common.draws').toLowerCase()}</span>

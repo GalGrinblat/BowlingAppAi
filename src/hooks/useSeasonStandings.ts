@@ -109,7 +109,7 @@ export function useSeasonStandings(
         result.push({ round: g.round, matchDay: g.matchDay });
       }
     });
-    return result.sort((a, b) => a.round !== b.round ? a.round - b.round : a.matchDay - b.matchDay);
+    return result.sort((a, b) => a.round !== b.round ? b.round - a.round : b.matchDay - a.matchDay);
   }, [games]);
 
   const standingsGames = useMemo(() => {

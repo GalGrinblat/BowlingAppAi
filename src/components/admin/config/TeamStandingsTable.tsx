@@ -56,7 +56,11 @@ export const TeamStandingsTable: React.FC<TeamStandingsTableProps> = ({
           {r.result}
         </span>
         <div className="text-xs text-gray-500 mt-0.5 truncate max-w-[8rem]">
-          {resultWord} {r.ownPoints}-{r.opponentPoints} {t('seasons.resultVs')} {r.opponentName}
+          {resultWord}{' '}
+          <span dir="ltr" className="inline-block">
+            {isRTL ? `${r.opponentPoints}-${r.ownPoints}` : `${r.ownPoints}-${r.opponentPoints}`}
+          </span>{' '}
+          {t('seasons.resultVs')} {r.opponentName}
         </div>
       </div>
     );
