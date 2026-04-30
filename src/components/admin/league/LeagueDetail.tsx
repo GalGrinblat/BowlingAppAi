@@ -6,6 +6,7 @@ import { useTranslation } from '../../../contexts/LanguageContext';
 import { useDateFormat } from '../../../hooks/useDateFormat';
 import { exportLeague, downloadExportFile, readImportFile, importLeagueOrSeason } from '../../../utils/leagueImportExportUtils';
 import { useAdminData } from '../../../contexts/AdminDataContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { NavButton } from '../../common/nav/NavButton';
 import { BackButton } from '../../common/BackButton';
 import { PageHeader } from '../../common/PageHeader';
@@ -41,6 +42,7 @@ export const LeagueDetail: React.FC = () => {
   const { leagueId } = useParams<{ leagueId: string }>();
   const { loadDashboardData, leagues, gamesMap, isLoadingData } = useAdminData();
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const { formatDate } = useDateFormat();
   const [league, setLeague] = useState<League | null>(null);
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -109,7 +111,7 @@ export const LeagueDetail: React.FC = () => {
     if (exportData) {
       const filename = `${displayLeague?.name.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.json`;
       downloadExportFile(exportData, filename);
-      alert(t('leagues.exportSuccess'));
+      showToast(t('leagues.exportSuccess'), 'success');
     }
   };
 
@@ -126,14 +128,14 @@ export const LeagueDetail: React.FC = () => {
       const result = await importLeagueOrSeason(importData);
 
       if (result.success) {
-        alert(t('leagues.importSuccess'));
+        showToast(t('leagues.importSuccess'), 'success');
         await loadDashboardData();
         // useEffect re-runs loadLeagueData automatically when isLoadingData transitions false
       } else {
-        alert(`${t('leagues.importError')}: ${result.error}`);
+        showToast(`${t('leagues.importError')}: ${result.error}`, 'error');
       }
     } catch (error) {
-      alert(`${t('leagues.importError')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showToast(`${t('leagues.importError')}: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
 
     if (fileInputRef.current) {

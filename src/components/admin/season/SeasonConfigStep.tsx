@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { FormField } from '../../common/FormField';
 import { PageHeader } from '../../common/PageHeader';
 import { HandicapConfigurationForm } from '../config/HandicapConfigurationForm';
@@ -51,6 +52,7 @@ export const SeasonConfigStep: React.FC<SeasonConfigStepProps> = ({
   league, formData, inheritLeagueConfig, onFormDataChange, onInheritChange, onNext, onBack
 }) => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
 
   const getValue = (key: keyof SeasonFormData) => {
     if (inheritLeagueConfig) {
@@ -90,7 +92,7 @@ export const SeasonConfigStep: React.FC<SeasonConfigStepProps> = ({
         <form onSubmit={e => {
           e.preventDefault();
           if (!formData.name.trim()) {
-            alert(t('validation.seasonNameRequired'));
+            showToast(t('validation.seasonNameRequired'), 'error');
             return;
           }
           onNext(getValue('numberOfTeams') as number);

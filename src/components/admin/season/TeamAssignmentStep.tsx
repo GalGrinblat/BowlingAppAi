@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { PageHeader } from '../../common/PageHeader';
 import { getPlayerDisplayName } from '../../../utils/playerUtils';
 import type { Player } from '../../../types/index';
@@ -27,6 +28,7 @@ export const TeamAssignmentStep: React.FC<TeamAssignmentStepProps> = ({
   onTeamNameChange, onAssignPlayer, onRemovePlayer, onNext, onBack
 }) => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
 
   const getAssignedPlayers = (excludeTeamIndex: number) => {
     return new Set(
@@ -46,7 +48,7 @@ export const TeamAssignmentStep: React.FC<TeamAssignmentStepProps> = ({
           e.preventDefault();
           const incompleteTeams = teams.filter(team => team.playerIds.length !== playersPerTeam);
           if (incompleteTeams.length > 0) {
-            alert(t('validation.teamsNotComplete').replace('{{count}}', String(playersPerTeam)));
+            showToast(t('validation.teamsNotComplete').replace('{{count}}', String(playersPerTeam)), 'error');
             return;
           }
           onNext();

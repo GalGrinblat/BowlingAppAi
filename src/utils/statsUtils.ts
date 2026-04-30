@@ -18,6 +18,35 @@ interface GameStats {
   team2Average: number;
 }
 
+const computeTeamStats = (
+  game: Game,
+  teamKey: 'team1' | 'team2',
+  matchesPerGame: number
+): PlayerGameStats[] => {
+  const pointsKey = teamKey === 'team1' ? 'team1Points' : 'team2Points';
+  return game[teamKey]!.players.map((player: GamePlayer, idx: number): PlayerGameStats => {
+    if (!player) {
+      return { totalPins: 0, gameAverage: 0, pointsScored: 0, isAbsent: false } as PlayerGameStats;
+    }
+    if (player.absent) {
+      const absenceScore = Math.max(0, Math.round(player.average) - ABSENT_PLAYER_PENALTY);
+      const totalPins = absenceScore * matchesPerGame;
+      const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
+        return sum + (m.playerMatches?.[idx]?.[pointsKey] ?? 0);
+      }, 0) || 0;
+      return { ...player, totalPins, gameAverage: absenceScore, pointsScored, isAbsent: true };
+    }
+    const totalPins = game.matches?.reduce((sum: number, m: GameMatch) => {
+      const p = m[teamKey].players[idx];
+      return sum + (p && p.pins !== undefined && p.pins !== '' ? Number(p.pins) : 0);
+    }, 0) || 0;
+    const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
+      return sum + (m.playerMatches?.[idx]?.[pointsKey] ?? 0);
+    }, 0) || 0;
+    return { ...player, totalPins, gameAverage: totalPins / matchesPerGame, pointsScored, isAbsent: false };
+  });
+};
+
 export const calculatePlayerStats = (game: Game): GameStats => {
   const emptyResult: GameStats = { team1Stats: [], team2Stats: [], team1TotalPins: 0, team2TotalPins: 0, team1Average: 0, team2Average: 0 };
   if (!game.team1 || !game.team2) return emptyResult;
@@ -27,59 +56,8 @@ export const calculatePlayerStats = (game: Game): GameStats => {
   }
   const matchesPerGame = game.matchesPerGame;
 
-  const team1Stats = game.team1.players.map((player: GamePlayer, idx: number): PlayerGameStats => {
-    if (!player) {
-      return { totalPins: 0, gameAverage: 0, pointsScored: 0, isAbsent: false } as PlayerGameStats;
-    }
-    if (player.absent) {
-      const absenceScore = Math.max(0, Math.round(player.average) - ABSENT_PLAYER_PENALTY);
-      const totalPins = absenceScore * matchesPerGame;
-      const gameAverage = absenceScore;
-      const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
-        const playerMatch = m.playerMatches?.[idx];
-        return sum + (playerMatch?.team1Points ?? 0);
-      }, 0) || 0;
-      return { ...player, totalPins, gameAverage, pointsScored, isAbsent: true };
-    }
-    const totalPins = game.matches?.reduce((sum: number, m: GameMatch) => {
-      const player = m.team1.players[idx];
-      const pins = player && player.pins !== undefined && player.pins !== '' ? Number(player.pins) : 0;
-      return sum + pins;
-    }, 0) || 0;
-    const gameAverage = totalPins / matchesPerGame;
-    const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
-      const playerMatch = m.playerMatches && m.playerMatches[idx];
-      return sum + (playerMatch?.team1Points ?? 0);
-    }, 0) || 0;
-    return { ...player, totalPins, gameAverage, pointsScored, isAbsent: false };
-  });
-
-  const team2Stats = game.team2.players.map((player: GamePlayer, idx: number): PlayerGameStats => {
-    if (!player) {
-      return { totalPins: 0, gameAverage: 0, pointsScored: 0, isAbsent: false } as PlayerGameStats;
-    }
-    if (player.absent) {
-      const absenceScore = Math.max(0, Math.round(player.average) - ABSENT_PLAYER_PENALTY);
-      const totalPins = absenceScore * matchesPerGame;
-      const gameAverage = absenceScore;
-      const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
-        const playerMatch = m.playerMatches && m.playerMatches[idx];
-        return sum + (playerMatch?.team2Points ?? 0);
-      }, 0) || 0;
-      return { ...player, totalPins, gameAverage, pointsScored, isAbsent: true };
-    }
-    const totalPins = game.matches?.reduce((sum: number, m: GameMatch) => {
-      const player = m.team2.players[idx];
-      const pins = player && player.pins !== undefined && player.pins !== '' ? Number(player.pins) : 0;
-      return sum + pins;
-    }, 0) || 0;
-    const gameAverage = totalPins / matchesPerGame;
-    const pointsScored = game.matches?.reduce((sum: number, m: GameMatch) => {
-      const playerMatch = m.playerMatches && m.playerMatches[idx];
-      return sum + (playerMatch?.team2Points ?? 0);
-    }, 0) || 0;
-    return { ...player, totalPins, gameAverage, pointsScored, isAbsent: false };
-  });
+  const team1Stats = computeTeamStats(game, 'team1', matchesPerGame);
+  const team2Stats = computeTeamStats(game, 'team2', matchesPerGame);
 
   // Calculate totals excluding absent players
   const team1NonAbsentStats = team1Stats.filter((p: PlayerGameStats) => !p.isAbsent);

@@ -18,7 +18,9 @@ import { ScheduleView } from './ScheduleView';
 import { HeadToHeadView } from './HeadToHeadView';
 import { SeasonRecordsView } from './SeasonRecordsView';
 import { PostponeModal } from './PostponeModal';
+import { StandingsFilterControls } from './StandingsFilterControls';
 
+import { useToast } from '../../../contexts/ToastContext';
 import type { Season, League, Team, Game } from '../../../types/index';
 import type { StandingsFilter } from '../../../hooks/useSeasonStandings';
 
@@ -26,6 +28,7 @@ export const SeasonDetail: React.FC = () => {
   const navigate = useNavigate();
   const { seasonId } = useParams<{ seasonId: string }>();
   const { t, direction } = useTranslation();
+  const { showToast } = useToast();
   const [season, setSeason] = useState<Season | null>(null);
   const [league, setLeague] = useState<League | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -82,7 +85,7 @@ export const SeasonDetail: React.FC = () => {
   const handleCompleteSeason = async () => {
     const incompleteGames = games.filter(g => g.status !== 'completed');
     if (incompleteGames.length > 0) {
-      alert(t('seasons.cannotCompleteIncomplete').replace('{{count}}', String(incompleteGames.length)));
+      showToast(t('seasons.cannotCompleteIncomplete').replace('{{count}}', String(incompleteGames.length)), 'error');
       return;
     }
     if (confirm(t('seasons.confirmComplete'))) {
@@ -93,12 +96,12 @@ export const SeasonDetail: React.FC = () => {
 
   const handlePostponeMatchDay = async () => {
     if (!league?.dayOfWeek) {
-      alert(t('seasons.cannotPostponeNoDay'));
+      showToast(t('seasons.cannotPostponeNoDay'), 'error');
       return;
     }
     const matchDayGamesToCheck = games.filter(g => g.matchDay === selectedMatchDay);
     if (matchDayGamesToCheck.some(g => g.status === 'completed')) {
-      alert(t('seasons.cannotPostponeCompleted'));
+      showToast(t('seasons.cannotPostponeCompleted'), 'error');
       return;
     }
     if (confirm(t('seasons.confirmPostpone').replace('{{matchDay}}', String(selectedMatchDay)).replace('{{weeks}}', String(postponeWeeks)))) {
@@ -125,7 +128,7 @@ export const SeasonDetail: React.FC = () => {
     if (exportData && season) {
       const filename = `${season.name.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.json`;
       downloadExportFile(exportData, filename);
-      alert(t('seasons.exportSuccess'));
+      showToast(t('seasons.exportSuccess'), 'success');
     }
   };
 
@@ -136,13 +139,13 @@ export const SeasonDetail: React.FC = () => {
       const importData = await readImportFile(file);
       const result = await importLeagueOrSeason(importData);
       if (result.success) {
-        alert(t('seasons.importSuccess'));
+        showToast(t('seasons.importSuccess'), 'success');
         navigate(0);
       } else {
-        alert(`${t('seasons.importError')}: ${result.error}`);
+        showToast(`${t('seasons.importError')}: ${result.error}`, 'error');
       }
     } catch (error) {
-      alert(`${t('seasons.importError')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showToast(`${t('seasons.importError')}: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
     if (event.target) event.target.value = '';
   };
@@ -228,38 +231,14 @@ export const SeasonDetail: React.FC = () => {
 
       {view === 'teamStandings' && (
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-          <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-            <h2 className="text-xl font-bold text-gray-800">{getStandingsTitle(t('seasons.teamStandings'))}</h2>
-            <div className="flex items-center gap-2">
-              {completedMatchDayEvents.length > 0 && (
-                <select
-                  value={standingsFilter ? `${standingsFilter.round}-${standingsFilter.matchDay}` : ''}
-                  onChange={(e) => {
-                    if (!e.target.value) {
-                      setStandingsFilter(null);
-                    } else {
-                      const [roundStr, matchDayStr] = e.target.value.split('-');
-                      setStandingsFilter({round: Number(roundStr), matchDay: Number(matchDayStr)});
-                    }
-                  }}
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
-                >
-                  <option value="">{t('seasons.currentStandings')}</option>
-                  {completedMatchDayEvents.map(({round, matchDay}) => (
-                    <option key={`${round}-${matchDay}`} value={`${round}-${matchDay}`}>
-                      {getMatchDayLabel(round, matchDay)}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <button
-                onClick={() => setShowPrintTeamStandings(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm"
-              >
-                🖨️ {t('common.print')}
-              </button>
-            </div>
-          </div>
+          <StandingsFilterControls
+            title={getStandingsTitle(t('seasons.teamStandings'))}
+            standingsFilter={standingsFilter}
+            setStandingsFilter={setStandingsFilter}
+            completedMatchDayEvents={completedMatchDayEvents}
+            getMatchDayLabel={getMatchDayLabel}
+            onPrint={() => setShowPrintTeamStandings(true)}
+          />
           <div className="overflow-x-auto -mx-4 sm:mx-0">
             <TeamStandingsTable
               standings={filteredTeamStandings}
@@ -284,38 +263,14 @@ export const SeasonDetail: React.FC = () => {
       {view === 'playerStandings' && (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-4 sm:p-6">
-            <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-              <h2 className="text-xl font-bold text-gray-800">{getStandingsTitle(t('seasons.playerStandings'))}</h2>
-              <div className="flex items-center gap-2">
-                {completedMatchDayEvents.length > 0 && (
-                  <select
-                    value={standingsFilter ? `${standingsFilter.round}-${standingsFilter.matchDay}` : ''}
-                    onChange={(e) => {
-                      if (!e.target.value) {
-                        setStandingsFilter(null);
-                      } else {
-                        const [roundStr, matchDayStr] = e.target.value.split('-');
-                        setStandingsFilter({round: Number(roundStr), matchDay: Number(matchDayStr)});
-                      }
-                    }}
-                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
-                  >
-                    <option value="">{t('seasons.currentStandings')}</option>
-                    {completedMatchDayEvents.map(({round, matchDay}) => (
-                      <option key={`${round}-${matchDay}`} value={`${round}-${matchDay}`}>
-                        {getMatchDayLabel(round, matchDay)}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                <button
-                  onClick={() => setShowPrintPlayerStandings(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm"
-                >
-                  🖨️ {t('common.print')}
-                </button>
-              </div>
-            </div>
+            <StandingsFilterControls
+              title={getStandingsTitle(t('seasons.playerStandings'))}
+              standingsFilter={standingsFilter}
+              setStandingsFilter={setStandingsFilter}
+              completedMatchDayEvents={completedMatchDayEvents}
+              getMatchDayLabel={getMatchDayLabel}
+              onPrint={() => setShowPrintPlayerStandings(true)}
+            />
             <div className="overflow-x-auto -mx-4 sm:mx-0">
               <PlayerStandingsTable
                 playerStats={filteredPlayerStats}

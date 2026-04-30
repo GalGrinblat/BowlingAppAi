@@ -14,6 +14,7 @@ import { BonusRulesConfiguration } from '../config/BonusRulesConfiguration';
 
 import { useNavigate } from 'react-router-dom';
 import { useAdminData } from '../../../contexts/AdminDataContext';
+import { useToast } from '../../../contexts/ToastContext';
 import type { League, Season, SeasonConfigurations, LineupStrategy, LineupRule } from '../../../types/index';
 
 function getDefaultSeasonConfigurations(): SeasonConfigurations {
@@ -50,6 +51,7 @@ export const LeagueManagement: React.FC = () => {
   const navigate = useNavigate();
   const { loadDashboardData } = useAdminData();
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [leagues, setLeagues] = useState<League[]>([]);
   const [seasonsMap, setSeasonsMap] = useState<Record<string, Season[]>>({});
   const [isAdding, setIsAdding] = useState(false);
@@ -101,7 +103,7 @@ export const LeagueManagement: React.FC = () => {
     const validation = validateLeague(leagueData);
 
     if (!validation.valid) {
-      alert(validation.error);
+      showToast(validation.error ?? '', 'error');
       return;
     }
 
@@ -112,17 +114,17 @@ export const LeagueManagement: React.FC = () => {
     );
 
     if (duplicateName) {
-      alert(t('leagues.duplicateName'));
+      showToast(t('leagues.duplicateName'), 'error');
       return;
     }
 
     if (editingId) {
       await leaguesApi.update(editingId, leagueData);
-      alert(t('leagues.leagueUpdated'));
+      showToast(t('leagues.leagueUpdated'), 'success');
       setEditingId(null);
     } else {
       await leaguesApi.create(leagueData);
-      alert(t('leagues.leagueCreated'));
+      showToast(t('leagues.leagueCreated'), 'success');
     }
 
     setFormData(getDefaultFormData());
@@ -174,7 +176,7 @@ export const LeagueManagement: React.FC = () => {
       }
       message += `\n${t('leagues.completeOrDelete')}`;
 
-      alert(message);
+      showToast(message, 'error');
       return;
     }
 
@@ -182,7 +184,7 @@ export const LeagueManagement: React.FC = () => {
       await leaguesApi.delete(id);
       await loadLeagues();
       await loadDashboardData();
-      alert(t('leagues.leagueDeleted'));
+      showToast(t('leagues.leagueDeleted'), 'success');
     }
   };
 
@@ -191,7 +193,7 @@ export const LeagueManagement: React.FC = () => {
       // Archiving an active league
       if (confirm(`📦 ${t('leagues.archiveConfirm')} "${league.name}"?\n\n${t('leagues.archiveDesc')}`)) {
         await leaguesApi.update(league.id, { active: false });
-        alert(`✅ "${league.name}" ${t('leagues.archived')}`);
+        showToast(`"${league.name}" ${t('leagues.archived')}`, 'success');
         await loadLeagues();
         await loadDashboardData();
       }
@@ -199,7 +201,7 @@ export const LeagueManagement: React.FC = () => {
       // Restoring an archived league
       if (confirm(`📤 ${t('leagues.restoreConfirm')} "${league.name}"?\n\n${t('leagues.restoreDesc')}`)) {
         await leaguesApi.update(league.id, { active: true });
-        alert(`✅ "${league.name}" ${t('leagues.restored')}`);
+        showToast(`"${league.name}" ${t('leagues.restored')}`, 'success');
         await loadLeagues();
         await loadDashboardData();
       }

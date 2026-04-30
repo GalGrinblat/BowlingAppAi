@@ -3,6 +3,8 @@
  * Reusable functions for importing and exporting data in CSV and JSON formats
  */
 
+import { downloadFile, getTimestamp } from './fileExportUtils';
+
 export interface ParseResult<T> {
   validData: T[];
   errors: string[];
@@ -196,33 +198,6 @@ export const parseCSVLine = (line: string): string[] => {
   
   result.push(current.trim());
   return result;
-};
-
-/**
- * Helper function to download a file
- */
-const downloadFile = (content: string, filename: string, mimeType: string): void => {
-  // Add UTF-8 BOM for CSV files so Excel can properly display Hebrew/Unicode characters
-  const BOM = '\uFEFF';
-  const contentWithBOM = mimeType.includes('csv') ? BOM + content : content;
-  
-  const blob = new Blob([contentWithBOM], { type: mimeType });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
-/**
- * Get current timestamp in YYYY-MM-DD format
- */
-const getTimestamp = (): string => {
-  return new Date().toISOString().split('T')[0]!;
 };
 
 /**

@@ -14,6 +14,7 @@ import {
 import { SeasonConfigStep, SeasonFormData } from './SeasonConfigStep';
 import { TeamAssignmentStep } from './TeamAssignmentStep';
 import { PlayerAveragesStep } from './PlayerAveragesStep';
+import { useToast } from '../../../contexts/ToastContext';
 
 type SimpleTeam = {
   name: string;
@@ -27,6 +28,7 @@ export const SeasonCreator: React.FC = () => {
   const { leagueId } = useParams<{ leagueId: string }>();
   const { loadDashboardData } = useAdminData();
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [step, setStep] = useState(1);
   const [league, setLeague] = useState<League | null>(null);
   const [formData, setFormData] = useState<SeasonFormData>({
@@ -96,7 +98,7 @@ export const SeasonCreator: React.FC = () => {
     const newTeams = [...teams];
     if (newTeams[teamIndex] && !newTeams[teamIndex].playerIds.includes(playerId)) {
       if (newTeams[teamIndex].playerIds.length >= formData.playersPerTeam) {
-        alert(t('validation.teamFull').replace('{{count}}', String(formData.playersPerTeam)));
+        showToast(t('validation.teamFull').replace('{{count}}', String(formData.playersPerTeam)), 'error');
         return;
       }
       newTeams[teamIndex].playerIds.push(playerId);
@@ -115,7 +117,7 @@ export const SeasonCreator: React.FC = () => {
   // Final submit
   const handleFinalSubmit = async () => {
     if (!formData.name || teams.length < 2 || teams.some(t => t.playerIds.length !== formData.playersPerTeam)) {
-      alert(t('validation.incompleteTeams'));
+      showToast(t('validation.incompleteTeams'), 'error');
       return;
     }
 
@@ -199,7 +201,7 @@ export const SeasonCreator: React.FC = () => {
       await loadDashboardData();
       navigate(`/admin/seasons/${created.id}`);
     } catch {
-      alert(t('validation.saveError'));
+      showToast(t('validation.saveError'), 'error');
     }
   };
 

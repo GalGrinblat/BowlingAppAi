@@ -22,6 +22,7 @@ import { PlayerForm } from './PlayerForm';
 import { ImportPreviewModal } from './ImportPreviewModal';
 import { useNavigate } from 'react-router-dom';
 import { useAdminData } from '../../../contexts/AdminDataContext';
+import { useToast } from '../../../contexts/ToastContext';
 
 const DEFAULT_SORT_OPTION: SortOption<Player> = { key: 'lastName', labelKey: 'sort.lastNameAsc', direction: 'asc' };
 
@@ -29,6 +30,7 @@ export const PlayerRegistry: React.FC = () => {
   const navigate = useNavigate();
   const { players, isLoadingPlayers, loadPlayers } = useAdminData();
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [isAdding, setIsAdding] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [formData, setFormData] = React.useState({
@@ -53,7 +55,7 @@ export const PlayerRegistry: React.FC = () => {
     const validation = validatePlayer(playerData);
 
     if (!validation.valid) {
-      alert(validation.error);
+      showToast(validation.error ?? '', 'error');
       return;
     }
 
@@ -65,17 +67,17 @@ export const PlayerRegistry: React.FC = () => {
     );
 
     if (existingPlayer) {
-      alert(`❌ ${t('players.duplicateName')}`);
+      showToast(t('players.duplicateName'), 'error');
       return;
     }
 
     if (editingId) {
       await playersApi.update(editingId, playerData);
-      alert(`✅ "${displayName}" ${t('players.updated')}`);
+      showToast(`"${displayName}" ${t('players.updated')}`, 'success');
       setEditingId(null);
     } else {
       await playersApi.create(playerData);
-      alert(`✅ "${displayName}" ${t('players.created')}`);
+      showToast(`"${displayName}" ${t('players.created')}`, 'success');
     }
 
     setFormData({ firstName: '', middleName: '', lastName: '', active: true });
@@ -100,7 +102,7 @@ export const PlayerRegistry: React.FC = () => {
     const teamsWithPlayer = allTeams.filter(team => team.playerIds.includes(id));
 
     if (teamsWithPlayer.length > 0) {
-      const seasonNames = await Promise.all(
+      await Promise.all(
         teamsWithPlayer.map(async team => {
           const season = await seasonsApi.getById(team.seasonId);
           return season ? season.name : 'Unknown Season';
@@ -108,14 +110,14 @@ export const PlayerRegistry: React.FC = () => {
       );
 
       const playerDisplayName = player ? getPlayerDisplayName(player) : 'Unknown';
-      alert(`❌ ${t('players.cannotDeleteAssigned')} "${playerDisplayName}" (${teamsWithPlayer.length} ${t('players.assignedToTeams')}):\n\n${[...new Set(seasonNames)].map(s => `• ${s}`).join('\n')}\n\n${t('players.removeFromTeamsFirst')}`);
+      showToast(`${t('players.cannotDeleteAssigned')} "${playerDisplayName}" — ${t('players.removeFromTeamsFirst')}`, 'error');
       return;
     }
 
     const playerDisplayName = player ? getPlayerDisplayName(player) : 'Unknown';
     if (confirm(`⚠️ ${t('players.deleteConfirm')} "${playerDisplayName}"?\n\n${t('common.deleteWarning')}`)) {
       await playersApi.delete(id);
-      alert(`✅ "${playerDisplayName}" ${t('players.deleted')}`);
+      showToast(`"${playerDisplayName}" ${t('players.deleted')}`, 'success');
       await loadPlayers();
     }
   };
@@ -140,10 +142,10 @@ export const PlayerRegistry: React.FC = () => {
         } else if (file.name.endsWith('.csv')) {
           handleParseImport(content, 'csv');
         } else {
-          alert('Please upload a CSV or JSON file');
+          showToast(t('players.invalidFileType'), 'error');
         }
       } catch (error) {
-        alert(`Error reading file: ${error}`);
+        showToast(`${t('players.fileReadError')}: ${error}`, 'error');
       }
     };
     reader.readAsText(file);
@@ -167,7 +169,7 @@ export const PlayerRegistry: React.FC = () => {
       setImportErrors(result.errors);
       setShowImportModal(true);
     } catch (error) {
-      alert(String(error));
+      showToast(String(error), 'error');
     }
   };
 
@@ -195,15 +197,10 @@ export const PlayerRegistry: React.FC = () => {
     setImportErrors([]);
     await loadPlayers();
 
-    let message = `✅ ${t('players.importComplete')}\n\n`;
-    message += `• ${successCount} ${t('players.playersImported')}\n`;
-    if (duplicateCount > 0) {
-      message += `• ${duplicateCount} ${t('players.duplicatesSkipped')}\n`;
-    }
-    if (importErrors.length > 0) {
-      message += `• ${importErrors.length} ${t('players.errorsDetails')}`;
-    }
-    alert(message);
+    const parts = [`${successCount} ${t('players.playersImported')}`];
+    if (duplicateCount > 0) parts.push(`${duplicateCount} ${t('players.duplicatesSkipped')}`);
+    if (importErrors.length > 0) parts.push(`${importErrors.length} ${t('players.errorsDetails')}`);
+    showToast(`${t('players.importComplete')}: ${parts.join(', ')}`, 'success');
   };
 
   const handleCancelImport = () => {

@@ -2,7 +2,7 @@
  * Utilities for calculating season records
  */
 
-import { Game, GameMatch, GamePlayer, MatchPlayer, PlayerRecordEntry, TeamRecordEntry, Team } from "@/types";
+import { Game, GameMatch, GamePlayer, MatchPlayer, PlayerRecordEntry, TeamRecordEntry, Team } from '../types/index';
 
 interface PlayerSeasonRecordEntry {
   playerRecordEntry: PlayerRecordEntry;

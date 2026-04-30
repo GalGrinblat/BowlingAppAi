@@ -15,6 +15,7 @@ import type {
   League, Season, Team, Game,
   Player, SeasonStatus, GameStatus,
   ScheduleMatchDay, GameMatch, GameTeam, BonusRule,
+  LineupStrategy, LineupRule,
 } from '../../types/index';
 
 // ---------------------------------------------------------------------------
@@ -59,111 +60,106 @@ const PLAYER_COLS = `id, first_name, middle_name, last_name, active`;
 // Mappers
 // ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapLeague = (d: Record<string, any>): League => ({
-  id: d.id,
-  name: d.name,
-  description: d.description || '',
-  dayOfWeek: d.day_of_week,
-  active: d.active,
+const mapLeague = (d: Record<string, unknown>): League => ({
+  id: d.id as string,
+  name: d.name as string,
+  description: (d.description as string) || '',
+  dayOfWeek: d.day_of_week as string,
+  active: d.active as boolean,
   createdAt: '',
   defaultSeasonConfigurations: {
-    numberOfTeams: d.number_of_teams,
-    playersPerTeam: d.players_per_team,
-    numberOfRounds: d.number_of_rounds,
-    matchesPerGame: d.matches_per_game,
-    lineupStrategy: d.lineup_strategy,
-    lineupRule: d.lineup_rule,
-    playerMatchPointsPerWin: d.player_match_points_per_win,
-    teamMatchPointsPerWin: d.team_match_points_per_win,
-    teamGamePointsPerWin: d.team_game_points_per_win,
-    useHandicap: d.use_handicap,
-    handicapBasis: d.handicap_basis,
-    handicapPercentage: d.handicap_percentage,
-    teamAllPresentBonusEnabled: d.team_all_present_bonus_enabled,
-    teamAllPresentBonusPoints: d.team_all_present_bonus_points,
+    numberOfTeams: d.number_of_teams as number,
+    playersPerTeam: d.players_per_team as number,
+    numberOfRounds: d.number_of_rounds as number,
+    matchesPerGame: d.matches_per_game as number,
+    lineupStrategy: d.lineup_strategy as LineupStrategy,
+    lineupRule: d.lineup_rule as LineupRule,
+    playerMatchPointsPerWin: d.player_match_points_per_win as number,
+    teamMatchPointsPerWin: d.team_match_points_per_win as number,
+    teamGamePointsPerWin: d.team_game_points_per_win as number,
+    useHandicap: d.use_handicap as boolean,
+    handicapBasis: d.handicap_basis as number,
+    handicapPercentage: d.handicap_percentage as number,
+    teamAllPresentBonusEnabled: d.team_all_present_bonus_enabled as boolean,
+    teamAllPresentBonusPoints: d.team_all_present_bonus_points as number,
     bonusRules: (d.bonus_rules as BonusRule[]) || [],
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapSeason = (d: Record<string, any>): Season => ({
-  id: d.id,
-  leagueId: d.league_id,
-  name: d.name,
-  startDate: d.start_date,
-  endDate: d.end_date,
+const mapSeason = (d: Record<string, unknown>): Season => ({
+  id: d.id as string,
+  leagueId: d.league_id as string,
+  name: d.name as string,
+  startDate: d.start_date as string,
+  endDate: d.end_date as string,
   status: d.status as SeasonStatus,
   schedule: (d.schedule as ScheduleMatchDay[]) ?? undefined,
-  updatedAt: d.updated_at ?? undefined,
+  updatedAt: (d.updated_at as string) ?? undefined,
   createdAt: '',
   // initial_player_averages excluded — not needed for public display
   seasonConfigurations: {
-    numberOfTeams: d.number_of_teams,
-    playersPerTeam: d.players_per_team,
-    numberOfRounds: d.number_of_rounds,
-    matchesPerGame: d.matches_per_game,
-    lineupStrategy: d.lineup_strategy,
-    lineupRule: d.lineup_rule,
-    playerMatchPointsPerWin: d.player_match_points_per_win,
-    teamMatchPointsPerWin: d.team_match_points_per_win,
-    teamGamePointsPerWin: d.team_game_points_per_win,
-    useHandicap: d.use_handicap,
-    handicapBasis: d.handicap_basis,
-    handicapPercentage: d.handicap_percentage,
-    teamAllPresentBonusEnabled: d.team_all_present_bonus_enabled,
-    teamAllPresentBonusPoints: d.team_all_present_bonus_points,
+    numberOfTeams: d.number_of_teams as number,
+    playersPerTeam: d.players_per_team as number,
+    numberOfRounds: d.number_of_rounds as number,
+    matchesPerGame: d.matches_per_game as number,
+    lineupStrategy: d.lineup_strategy as LineupStrategy,
+    lineupRule: d.lineup_rule as LineupRule,
+    playerMatchPointsPerWin: d.player_match_points_per_win as number,
+    teamMatchPointsPerWin: d.team_match_points_per_win as number,
+    teamGamePointsPerWin: d.team_game_points_per_win as number,
+    useHandicap: d.use_handicap as boolean,
+    handicapBasis: d.handicap_basis as number,
+    handicapPercentage: d.handicap_percentage as number,
+    teamAllPresentBonusEnabled: d.team_all_present_bonus_enabled as boolean,
+    teamAllPresentBonusPoints: d.team_all_present_bonus_points as number,
     bonusRules: (d.bonus_rules as BonusRule[]) || [],
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapTeam = (d: Record<string, any>): Team => ({
-  id: d.id,
-  seasonId: d.season_id,
-  name: d.name,
+const mapTeam = (d: Record<string, unknown>): Team => ({
+  id: d.id as string,
+  seasonId: d.season_id as string,
+  name: d.name as string,
   playerIds: (d.player_ids as string[]) || [],
   rosterChanges: [], // excluded from public select
   createdAt: '',
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapGame = (d: Record<string, any>): Game => ({
-  id: d.id,
-  seasonId: d.season_id,
-  round: d.round,
-  matchDay: d.match_day,
-  team1Id: d.team1_id,
-  team2Id: d.team2_id,
+const mapGame = (d: Record<string, unknown>): Game => ({
+  id: d.id as string,
+  seasonId: d.season_id as string,
+  round: d.round as number,
+  matchDay: d.match_day as number,
+  team1Id: d.team1_id as string,
+  team2Id: d.team2_id as string,
   status: d.status as GameStatus,
-  completedAt: d.completed_at ?? undefined,
+  completedAt: (d.completed_at as string) ?? undefined,
   createdAt: '',
   matches: (d.matches as GameMatch[]) ?? undefined,
   team1: (d.team1_data as GameTeam) ?? undefined,
   team2: (d.team2_data as GameTeam) ?? undefined,
-  matchesPerGame: d.matches_per_game,
-  useHandicap: d.use_handicap,
+  matchesPerGame: d.matches_per_game as number,
+  useHandicap: d.use_handicap as boolean,
   lineupStrategy: 'flexible', // excluded — not needed for display
   lineupRule: 'standard',     // excluded — not needed for display
-  playerMatchPointsPerWin: d.player_match_points_per_win,
-  teamMatchPointsPerWin: d.team_match_points_per_win,
-  teamGamePointsPerWin: d.team_game_points_per_win,
-  teamAllPresentBonusEnabled: d.team_all_present_bonus_enabled,
-  teamAllPresentBonusPoints: d.team_all_present_bonus_points,
+  playerMatchPointsPerWin: d.player_match_points_per_win as number,
+  teamMatchPointsPerWin: d.team_match_points_per_win as number,
+  teamGamePointsPerWin: d.team_game_points_per_win as number,
+  teamAllPresentBonusEnabled: d.team_all_present_bonus_enabled as boolean,
+  teamAllPresentBonusPoints: d.team_all_present_bonus_points as number,
   bonusRules: (d.bonus_rules as BonusRule[]) || [],
-  grandTotalPoints: d.grand_total_points ?? undefined,
-  scheduledDate: d.scheduled_date ?? undefined,
-  postponed: d.postponed ?? false,
-  originalDate: d.original_date ?? undefined,
+  grandTotalPoints: (d.grand_total_points as { team1: number; team2: number }) ?? undefined,
+  scheduledDate: (d.scheduled_date as string) ?? undefined,
+  postponed: (d.postponed as boolean) ?? false,
+  originalDate: (d.original_date as string) ?? undefined,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapPlayer = (d: Record<string, any>): Player => ({
-  id: d.id,
-  firstName: d.first_name,
-  middleName: d.middle_name ?? undefined,
-  lastName: d.last_name,
-  active: d.active,
+const mapPlayer = (d: Record<string, unknown>): Player => ({
+  id: d.id as string,
+  firstName: d.first_name as string,
+  middleName: (d.middle_name as string) ?? undefined,
+  lastName: d.last_name as string,
+  active: d.active as boolean,
   createdAt: '',
 });
 

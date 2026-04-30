@@ -189,6 +189,8 @@ const he: TranslationDictionary = {
     playersImported: 'שחקן(ים) יובאו',
     duplicatesSkipped: 'כפילות נדלגו',
     errorsDetails: 'שגיאה(ות) (ראה מודל לפרטים)',
+    invalidFileType: 'אנא העלה קובץ CSV או JSON',
+    fileReadError: 'שגיאה בקריאת הקובץ',
     statusActive: 'פעיל',
     statusInactive: 'לא פעיל',
   },

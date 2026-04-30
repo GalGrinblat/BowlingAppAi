@@ -9,10 +9,12 @@ import { PageHeader } from '../common/PageHeader';
 import { useDateFormat } from '../../hooks/useDateFormat';
 import { logger } from '../../utils/logger';
 import { getPlayerDisplayName } from '../../utils/playerUtils';
+import { useToast } from '../../contexts/ToastContext';
 
 export const UserManagement: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const { formatDate } = useDateFormat();
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -68,12 +70,12 @@ export const UserManagement: React.FC = () => {
         await usersApi.linkPlayer(userId, newPlayerId);
       }
 
-      alert(t('userManagement.userUpdatedSuccess'));
+      showToast(t('userManagement.userUpdatedSuccess'), 'success');
       setEditingUser(null);
       await loadData();
     } catch (error) {
       logger.error('Error updating user:', error);
-      alert(t('userManagement.userUpdateFailed'));
+      showToast(t('userManagement.userUpdateFailed'), 'error');
     }
   };
 
@@ -91,26 +93,26 @@ export const UserManagement: React.FC = () => {
 
   const handleAddEmail = async () => {
     if (!newEmail.trim()) {
-      alert(t('userManagement.emailRequired'));
+      showToast(t('userManagement.emailRequired'), 'error');
       return;
     }
 
     // RFC 5321 email validation with length limit
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
     if (newEmail.trim().length > 254 || !emailRegex.test(newEmail.trim())) {
-      alert(t('userManagement.emailInvalid'));
+      showToast(t('userManagement.emailInvalid'), 'error');
       return;
     }
 
     try {
       await allowedEmailsApi.add(newEmail.trim(), newEmailNotes.trim() || undefined);
-      alert(t('userManagement.emailAddedSuccess'));
+      showToast(t('userManagement.emailAddedSuccess'), 'success');
       setNewEmail('');
       setNewEmailNotes('');
       await loadData();
     } catch (error) {
       logger.error('Error adding email:', error);
-      alert(t('userManagement.emailAddFailed'));
+      showToast(t('userManagement.emailAddFailed'), 'error');
     }
   };
 
@@ -121,11 +123,11 @@ export const UserManagement: React.FC = () => {
 
     try {
       await allowedEmailsApi.remove(email);
-      alert(t('userManagement.emailRemovedSuccess'));
+      showToast(t('userManagement.emailRemovedSuccess'), 'success');
       await loadData();
     } catch (error) {
       logger.error('Error removing email:', error);
-      alert(t('userManagement.emailRemoveFailed'));
+      showToast(t('userManagement.emailRemoveFailed'), 'error');
     }
   };
 

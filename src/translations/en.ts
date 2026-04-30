@@ -189,6 +189,8 @@ const en: TranslationDictionary = {
     playersImported: 'player(s) imported',
     duplicatesSkipped: 'duplicate(s) skipped',
     errorsDetails: 'error(s) (see modal for details)',
+    invalidFileType: 'Please upload a CSV or JSON file',
+    fileReadError: 'Error reading file',
     statusActive: 'Active',
     statusInactive: 'Inactive',
   },

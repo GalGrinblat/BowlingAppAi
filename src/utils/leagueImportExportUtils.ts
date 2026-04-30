@@ -1,6 +1,7 @@
 import { leaguesApi, seasonsApi, teamsApi, gamesApi, playersApi } from '../services/api';
 import { logger } from './logger';
 import { getPlayerDisplayName } from './playerUtils';
+import { downloadFile, getTimestamp } from './fileExportUtils';
 import type { League, Season, Team, Game, Player, GameMatch } from '../types/index';
 
 interface LeagueExportData {
@@ -368,29 +369,6 @@ async function importSeasonData(
   }
 
   return { success: true, seasonId: newSeason.id };
-}
-
-/**
- * Helper function to download a file
- */
-function downloadFile(content: string, filename: string, mimeType: string): void {
-  const blob = new Blob([content], { type: mimeType });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-/**
- * Get current timestamp in YYYY-MM-DD format
- */
-function getTimestamp(): string {
-  return new Date().toISOString().split('T')[0]!;
 }
 
 /**

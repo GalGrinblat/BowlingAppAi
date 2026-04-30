@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { Modal } from '../../common/Modal';
 import { PrintCombined } from './PrintCombined';
 
@@ -15,6 +16,7 @@ export const PrintMatchDayOptions: React.FC<PrintMatchDayOptionsProps> = ({
   onClose
 }) => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [showPrint, setShowPrint] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState({
     matchDay: true,
@@ -32,7 +34,7 @@ export const PrintMatchDayOptions: React.FC<PrintMatchDayOptionsProps> = ({
   const handlePrint = () => {
     // Check if at least one option is selected
     if (!selectedOptions.matchDay && !selectedOptions.teamStandings && !selectedOptions.playerStandings) {
-      alert(t('print.selectAtLeastOne'));
+      showToast(t('print.selectAtLeastOne'), 'error');
       return;
     }
     setShowPrint(true);
