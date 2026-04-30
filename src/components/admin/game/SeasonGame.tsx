@@ -101,7 +101,7 @@ export const SeasonGame: React.FC = () => {
   }, [game?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePreMatchContinue = async (finalTeam1Players: GamePlayer[], finalTeam2Players: GamePlayer[]) => {
-    if (!game || !game.team1 || !game.team2) return;
+    if (!game || !game.team1 || !game.team2 || !game.matchesPerGame) return;
     const defaultGrandTotalPoints = { team1: 0, team2: 0 };
     const updatedGame: Game = {
       ...game,
@@ -115,7 +115,7 @@ export const SeasonGame: React.FC = () => {
       team2Id: game.team2Id ?? '',
       status: game.status ?? 'pending',
       matches: game.matches ?? [],
-      matchesPerGame: game.matchesPerGame ?? 3,
+      matchesPerGame: game.matchesPerGame,
       bonusRules: game.bonusRules ?? [],
       lineupStrategy: game.lineupStrategy,
       lineupRule: game.lineupRule,
@@ -202,7 +202,7 @@ export const SeasonGame: React.FC = () => {
   };
 
   const finishGame = async () => {
-    if (!game?.team1 || !game?.team2 || !game?.matches) return;
+    if (!game?.team1 || !game?.team2 || !game?.matches || !game?.matchesPerGame) return;
 
     // Validate all non-absent players have scores
     const missing = game.matches.some((m: GameMatch) =>
@@ -229,7 +229,7 @@ export const SeasonGame: React.FC = () => {
       team1Id: game.team1Id ?? '',
       team2Id: game.team2Id ?? '',
       matches: game.matches ?? [],
-      matchesPerGame: game.matchesPerGame ?? 3,
+      matchesPerGame: game.matchesPerGame,
       bonusRules: game.bonusRules ?? [],
       lineupStrategy: game.lineupStrategy,
       lineupRule: game.lineupRule,

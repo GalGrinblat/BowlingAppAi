@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from '../../../contexts/LanguageContext';
 import { ABSENT_PLAYER_PENALTY } from '../../../constants/bowling';
+import { logger } from '../../../utils/logger';
 import type { Game, GameMatch, GamePlayer } from '../../../types/index';
 
 export type GameScoreSheetMode = 'edit' | 'readonly' | 'print';
@@ -79,9 +80,12 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
   // In print mode with no matches yet (pending game), generate placeholder stubs for layout
   const matches = useMemo(() => {
     if (rawMatches.length > 0 || !isPrint) return rawMatches;
-    const count = game.matchesPerGame ?? 3;
-    return Array.from({ length: count }, (_, i) => ({ matchNumber: i + 1 } as GameMatch));
-  }, [rawMatches, isPrint, game.matchesPerGame]);  
+    if (!game.matchesPerGame) {
+      logger.error('GameScoreSheet: game.matchesPerGame is missing', { gameId: game.id });
+      return rawMatches;
+    }
+    return Array.from({ length: game.matchesPerGame }, (_, i) => ({ matchNumber: i + 1 } as GameMatch));
+  }, [rawMatches, isPrint, game.matchesPerGame, game.id]);
 
   // All-present bonus computed dynamically (never stored) so it works for old saved games too
   const team1PresentBonus = getAllPresentBonus(game, 'team1');
