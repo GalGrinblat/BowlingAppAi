@@ -221,7 +221,7 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
               const playerTotalPins = isAbsent
                 ? absentScore * matches.length
                 : matches.reduce((s, m) => {
-                    const pins = (teamKey === 'team1' ? m.team1 : m.team2).players[playerIdx]?.pins;
+                    const pins = (teamKey === 'team1' ? m.team1 : m.team2)?.players[playerIdx]?.pins;
                     return s + (pins != null && pins !== '' ? parseInt(pins) : 0);
                   }, 0);
               return (
