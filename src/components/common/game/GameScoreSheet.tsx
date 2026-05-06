@@ -107,15 +107,15 @@ export const GameScoreSheet: React.FC<GameScoreSheetProps> = ({
   const tabMap = useMemo(() => {
     const map = new Map<string, number>();
     let idx = 100;
-    for (let mi = 0; mi < matches.length; mi++) {
-      for (const teamKey of ['team1', 'team2'] as const) {
-        const players = game[teamKey]?.players ?? [];
-        players.forEach((p, pi) => {
-          if (!p.absent) {
+    for (const teamKey of ['team1', 'team2'] as const) {
+      const players = game[teamKey]?.players ?? [];
+      players.forEach((p, pi) => {
+        if (!p.absent) {
+          for (let mi = 0; mi < matches.length; mi++) {
             map.set(`${mi}-${teamKey}-${pi}`, idx++);
           }
-        });
-      }
+        }
+      });
     }
     return map;
   }, [matches.length, game.team1?.players, game.team2?.players]); // eslint-disable-line react-hooks/exhaustive-deps
