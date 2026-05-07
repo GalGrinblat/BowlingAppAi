@@ -18,7 +18,7 @@ export const MatchView: React.FC<MatchViewProps> = ({ matchNumber, game, onUpdat
     .replace('{{total}}', String(totalMatches));
 
   return (
-    <div className="scorecard rounded-xl p-4 md:p-6 mb-8 animate-slide-in">
+    <div className="scorecard rounded-xl p-3 mb-8 animate-slide-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="bowling-title text-white text-2xl">
@@ -34,11 +34,11 @@ export const MatchView: React.FC<MatchViewProps> = ({ matchNumber, game, onUpdat
 
       {/* Team Headers */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-gradient-to-br from-orange-600 to-red-600 text-white px-3 py-2 rounded-lg text-center">
-          <div className="bowling-title text-xl truncate">{game.team1.name}</div>
+        <div className="bg-gradient-to-br from-orange-600 to-red-600 text-white px-2 py-1.5 rounded-lg text-center">
+          <div className="bowling-title text-lg truncate">{game.team1.name}</div>
         </div>
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-3 py-2 rounded-lg text-center">
-          <div className="bowling-title text-xl truncate">{game.team2.name}</div>
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-2 py-1.5 rounded-lg text-center">
+          <div className="bowling-title text-lg truncate">{game.team2.name}</div>
         </div>
       </div>
 
@@ -62,14 +62,10 @@ export const MatchView: React.FC<MatchViewProps> = ({ matchNumber, game, onUpdat
             >
               {/* Team 1 side */}
               <div className="flex items-center gap-1.5 min-w-0">
-                <div className="bg-orange-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {player.rank}
-                </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-white text-xs font-semibold truncate">{player.name}</div>
+                  <div className="text-white text-xs font-semibold">{player.name}</div>
                   <div className="text-gray-400 text-[10px] leading-tight">
-                    {t('games.avg')}:{player.average.toFixed(0)}
-                    {game.useHandicap ? ` · ${t('games.hc')}:${player.handicap}` : ''}
+                    {game.useHandicap && `${t('games.hc')}: ${player.handicap}`}
                     {player.absent && <span className="text-red-400 ml-1">({t('games.absent')})</span>}
                   </div>
                 </div>
@@ -136,15 +132,11 @@ export const MatchView: React.FC<MatchViewProps> = ({ matchNumber, game, onUpdat
                   />
                 )}
                 <div className="min-w-0 flex-1 text-right">
-                  <div className="text-white text-xs font-semibold truncate">{team2Player.name}</div>
+                  <div className="text-white text-xs font-semibold">{team2Player.name}</div>
                   <div className="text-gray-400 text-[10px] leading-tight">
-                    {game.useHandicap ? `${t('games.hc')}:${team2Player.handicap} · ` : ''}
-                    {t('games.avg')}:{team2Player.average.toFixed(0)}
+                    {game.useHandicap && `${t('games.hc')}: ${team2Player.handicap}`}
                     {team2Player.absent && <span className="text-red-400 ml-1">({t('games.absent')})</span>}
                   </div>
-                </div>
-                <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {team2Player.rank}
                 </div>
               </div>
             </div>

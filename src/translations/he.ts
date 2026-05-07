@@ -476,7 +476,7 @@ const he: TranslationDictionary = {
     willUse: 'ישתמש ב:',
     pinsPerGame: 'פינים/משחק',
     continueToMatch: 'המשך למשחק',
-    matchOf: 'מקצה {{current}} מתוך {{total}}',
+    matchOf: 'משחק {{current}} מתוך {{total}}',
     totalPinsHC: 'סה"כ פינים עם הנד\'',
     matchPoints: 'נקודות מקצה',
     withHdc: 'עם הנד\'',
